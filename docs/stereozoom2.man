@@ -1,0 +1,90 @@
+.\" Process this file with
+.\" groff -man -Tascii stereozoom2.1
+.\"
+.TH STEREOZOOM2 1 "AUGUST 2008" Linux "User Manuals"
+.SH NAME
+stereozoom2 \- utility for viewing stereo pairs and close comparing of multiple pictures 
+.SH SYNOPSIS
+.BI "stereozoom2 [-a" " horiz_res" x "vert_res " "] [-m" " width" , "height " "] [-r] [-c] [-s" " space_width " "] [-p" " coord_x" , "coord_y " "] [-f" " filename " ] " and_so_on..."
+
+.SH DESCRIPTION
+.B stereozoom2
+Displays the image files specified on the command line in the specified layout. Enables simultaneous zooming, which makes it very much suitable for comparing images or for observing stereo pairs.
+.SH OPTIONS
+.TP
+.BI "-a " "[ horiz_res" x "vert_res ]"
+.RI "'a' stands for 'area'. You can set the resolution of area per picture where pictures you are examining are shown. Assuming" " 200x300 " "if argument is omitted"
+.TP
+.BI "-m " "[ matrix_x" , "matrix_y ]"
+ 'm' stands for 'matrix'; as you supply filenames, they are going to be stacked in the matrix according to stacking method (growing rows or columns). Only one dimension of the matrix is effective, so if you want to have 
+.IR N " images in a row, just pass"
+.BR -r " (row growing mode) first and then"
+.BI "-m " "N,whatever_number"
+.RI ". Assuming" " 0,0 " "if argument is omitted (cancels matrix mode)"
+.TP  
+.B -r 
+ 'r' stands for 'row'; it either sets the row growing mode, or it begins a new row (it is like you are writing text on the computer and press enter)
+.TP 
+.B -c 
+ 'c' stands for 'columns'; it is the complement of the above, it is like writing in japanese :-) 
+.TP 
+.BI "-s " "[ width ]"
+ 's' stands for 'space'; you are going to have a "hole" instead of a picture... If the width is not specified, then width of 1 is assumed.
+.TP 
+.BI "-f " "filename"
+ 'f' stands for... 'filename'! If you have some weird filename, you can protect it by passing this parameter first.
+.TP 
+.BI "-p " "[ pos_x" , "pos_y ]"
+ 'p' stands for 'position'. You can reset the position before specifying a filename. This can be particulary useful if you use stereozoom2 as a library. Forgeting this if position not supplied.
+
+.SH INTERACTIVE CONTROL
+Assuming that you have managed to pass some filenames, you will see a window with the images displayed in front of you. You can control everything like this:
+.TP
+.B mouse
+You move the cursor across the window. The crosshair of the REAL cursor has one more yellow circle in its center. And you can use the 
+.BR "left mouse button " "to drag the image and"
+.BR "mouse wheel " "to zoom in and out (it matters where the cursor is)."
+.TP
+.B keyboard
+You can use the following keys: 
+.RS
+.TP
+.BR '/' " on either part of keyboard"
+View 1:1 (no zoom)
+.TP 
+.BR '8' " or " '*' " on num keypad"
+View the full picture centered.
+.TP
+.BR "arrow keys"
+Move the current picture (and only the current picture). Useful for aligning pictures (mainly stereo pairs)
+.TP
+.BR "aswd keys"
+Move all pictures (if you don't have the mouse)
+.TP
+.BR shift
+Make every transformation faster
+.RE
+
+.SH EXAMPLE
+.B stereozoom2 
+.BI -r " 200x250 " -m " 4,3 " -r " shots*.jpg " -r " average.jpg " -s " 2 variance.jpg"
+
+You are going to use this syntax when displaying some images in a matrix (you don't have to care how many of them are) and then displaying the results of processing in the next row
+
+Assuming you have five 
+.IR "shots_001.jpg " to " shots_005.jpg " "files in your directory, the result will be:" " shots_001 " to " shots_004 " "in the first row," " shots_005 " "in the second row to the left. The third row will contain" " average.jpg " "(left) and" " variance.jpg " "(right)"
+
+.SH DIAGNOSTICS
+None suggested yet 
+.SH BUGS
+If you have low zoom during viewing, weird things may ocur. Also make yourself sure that you have enough memory :-)
+
+.SH SEE ALSO
+http://stereozoom2.sourceforge.net, http://213.211.57.37/dokuwiki/doku.php/public:stereozoom2
+
+.SH AUTHOR
+Matěj Týč (Matej Tyc), matej.tyc at gmail.com 
+
+Copying and distribution of this file, with or without modification, are permitted in any medium without royalty provided the copyright notice and this notice are preserved.
+
+.\" vim: set filetype=groff:

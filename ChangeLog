@@ -1,0 +1,18 @@
+2009-02-23 Matěj Týč <bubla@users.sf.net>
+	* rsrc/forms.fbp: Replaced the main window with wxFrame instead with
+	wxDialog 
+	* src/Main_gui.cpp: Replaced the Panel_image's sizer to wxGridBagSizer 
+
+2008-09-07 Matěj Týč <bubla@users.sf.net>
+	* rsrc/forms.fbp (File_picker): Change of current directory for all
+	filepickers when user picks a filename.
+	* src/Main_gui.cpp 
+		(Main_window::Start_clicked): Added check against creating
+		windows with bigger dimensions that screen resolution.
+		(+ Main_gui.h): Added drag and drop support.
+		(Main_window::Regroup_panels): Fixed bug with wrong index when
+		inserting new panels during image matrix resize.
+
+2009-02-05 Matěj Týč <bubla@users.sf.net>
+	* rsrc/forms.fbp: Changed the GUI from wxDialog based to wxFrame based
+

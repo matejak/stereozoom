@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=gstereozoom2
+Comment=A picture comparsion tool
+Exec=gstereozoom2
+Icon=stereozoom2
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+Categories=Graphics;2DGraphics;
