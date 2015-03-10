@@ -117,7 +117,6 @@ AC_C_VOLATILE
 
 AC_CONFIG_FILES([Makefile
                  bin/Makefile
-                 lib/Makefile
 		 docs/Makefile
 		 rsrc/Makefile])
 

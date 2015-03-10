@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version May 17 2008)
+// C++ code generated with wxFormBuilder (version Mar 10 2015)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -36,6 +36,7 @@ Main_frame::Main_frame( wxWindow* parent, wxWindowID id, const wxString& title, 
 	Spin_matrix_h = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 64, 1 );
 	bSizer13->Add( Spin_matrix_h, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxRIGHT, 5 );
 	
+	
 	sbSizer3->Add( bSizer13, 1, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer12;
@@ -59,28 +60,32 @@ Main_frame::Main_frame( wxWindow* parent, wxWindowID id, const wxString& title, 
 	Text_image_3->Wrap( -1 );
 	bSizer12->Add( Text_image_3, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxRIGHT, 5 );
 	
+	
 	sbSizer3->Add( bSizer12, 1, wxEXPAND, 5 );
+	
 	
 	Sizer_1->Add( sbSizer3, 0, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer2;
 	bSizer2 = new wxBoxSizer( wxHORIZONTAL );
 	
-	Button_start = new wxButton( this, ID_BUTTON_START, wxT("Start"), wxDefaultPosition, wxDefaultSize, 0 );
-	Button_start->SetToolTip( wxT("launch stereozoom2, the tool to examine selected images") );
+	Button_exit = new wxButton( this, ID_BUTTON_EXIT, wxT("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer2->Add( Button_exit, 0, wxALIGN_RIGHT|wxALL, 5 );
 	
-	bSizer2->Add( Button_start, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT|wxALL, 5 );
+	Button_about = new wxButton( this, ID_BUTTON_ABOUT, wxT("About"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer2->Add( Button_about, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
 	
 	
 	bSizer2->Add( 0, 0, 1, wxEXPAND, 5 );
 	
-	Button_about = new wxButton( this, ID_BUTTON_ABOUT, wxT("About"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer2->Add( Button_about, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	Button_start = new wxButton( this, ID_BUTTON_START, wxT("Start"), wxDefaultPosition, wxDefaultSize, 0 );
+	Button_start->SetToolTip( wxT("launch stereozoom2, the tool to examine selected images") );
 	
-	Button_exit = new wxButton( this, ID_BUTTON_EXIT, wxT("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer2->Add( Button_exit, 0, wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT|wxALL, 5 );
+	bSizer2->Add( Button_start, 1, wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT|wxALL, 5 );
+	
 	
 	Sizer_1->Add( bSizer2, 0, wxEXPAND, 5 );
+	
 	
 	this->SetSizer( Sizer_1 );
 	this->Layout();
@@ -89,9 +94,9 @@ Main_frame::Main_frame( wxWindow* parent, wxWindowID id, const wxString& title, 
 	// Connect Events
 	Spin_matrix_w->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
 	Spin_matrix_h->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
-	Button_start->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Start_clicked ), NULL, this );
-	Button_about->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::About_clicked ), NULL, this );
 	Button_exit->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Exit_clicked ), NULL, this );
+	Button_about->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::About_clicked ), NULL, this );
+	Button_start->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Start_clicked ), NULL, this );
 }
 
 Main_frame::~Main_frame()
@@ -99,9 +104,10 @@ Main_frame::~Main_frame()
 	// Disconnect Events
 	Spin_matrix_w->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
 	Spin_matrix_h->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
-	Button_start->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Start_clicked ), NULL, this );
-	Button_about->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::About_clicked ), NULL, this );
 	Button_exit->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Exit_clicked ), NULL, this );
+	Button_about->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::About_clicked ), NULL, this );
+	Button_start->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Start_clicked ), NULL, this );
+	
 }
 
 Dialog_about::Dialog_about( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
@@ -133,6 +139,7 @@ Dialog_about::Dialog_about( wxWindow* parent, wxWindowID id, const wxString& tit
 	Text_descr->Wrap( 400 );
 	bSizer4->Add( Text_descr, 0, wxALL, 5 );
 	
+	
 	Sizer_1->Add( bSizer4, 1, wxEXPAND, 5 );
 	
 	
@@ -147,6 +154,7 @@ Dialog_about::Dialog_about( wxWindow* parent, wxWindowID id, const wxString& tit
 	Button_close = new wxButton( this, ID_BUTTON_CLOSE_ABOUT, wxT("Close"), wxDefaultPosition, wxDefaultSize, 0 );
 	Sizer_1->Add( Button_close, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
 	
+	
 	this->SetSizer( Sizer_1 );
 	this->Layout();
 	Sizer_1->Fit( this );
@@ -159,6 +167,7 @@ Dialog_about::~Dialog_about()
 {
 	// Disconnect Events
 	Button_close->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Dialog_about::Close_about ), NULL, this );
+	
 }
 
 Panel_image::Panel_image( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style ) : wxPanel( parent, id, pos, size, style )
@@ -167,8 +176,7 @@ Panel_image::Panel_image( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	Group_image = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("image name") ), wxVERTICAL );
 	
 	Check_preview = new wxCheckBox( this, ID_CHECK_PREVIEW, wxT("Show preview"), wxDefaultPosition, wxDefaultSize, 0 );
-	Check_preview->SetValue(true);
-	
+	Check_preview->SetValue(true); 
 	Group_image->Add( Check_preview, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
 	Image_space = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE|wxTAB_TRAVERSAL );
@@ -184,8 +192,8 @@ Panel_image::Panel_image( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	Group_image->Add( File_picker, 0, wxALL|wxEXPAND, 5 );
 	
 	Check_use = new wxCheckBox( this, ID_USE_IMAGE, wxT("Use the image"), wxDefaultPosition, wxDefaultSize, 0 );
-	
 	Group_image->Add( Check_use, 0, wxRIGHT|wxLEFT, 5 );
+	
 	
 	this->SetSizer( Group_image );
 	this->Layout();
@@ -204,4 +212,5 @@ Panel_image::~Panel_image()
 	Image_space->Disconnect( wxEVT_LEFT_DOWN, wxMouseEventHandler( Panel_image::Dragdrop_start ), NULL, this );
 	Image_space->Disconnect( wxEVT_PAINT, wxPaintEventHandler( Panel_image::Repaint ), NULL, this );
 	File_picker->Disconnect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( Panel_image::Chosen_file ), NULL, this );
+	
 }

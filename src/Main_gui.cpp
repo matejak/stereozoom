@@ -34,7 +34,7 @@
 
 bool MY_wxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
 {
-	if(filenames == NULL)
+	if(filenames.IsEmpty())
 		return false;
 	
 	Owner->File_drop(filenames[0]);

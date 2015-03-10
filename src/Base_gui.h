@@ -1,13 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version May 17 2008)
+// C++ code generated with wxFormBuilder (version Mar 10 2015)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef __Base_gui__
-#define __Base_gui__
+#ifndef __BASE_GUI_H__
+#define __BASE_GUI_H__
 
+#include <wx/artprov.h>
+#include <wx/xrc/xmlres.h>
 #include <wx/string.h>
 #include <wx/stattext.h>
 #include <wx/gdicmn.h>
@@ -32,9 +34,9 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-#define ID_BUTTON_START 1000
+#define ID_BUTTON_EXIT 1000
 #define ID_BUTTON_ABOUT 1001
-#define ID_BUTTON_EXIT 1002
+#define ID_BUTTON_START 1002
 #define ID_BUTTON_CLOSE_ABOUT 1003
 #define ID_CHECK_PREVIEW 1004
 #define ID_USE_IMAGE 1005
@@ -56,20 +58,21 @@ class Main_frame : public wxFrame
 		wxStaticText* Text_image_2;
 		wxSpinCtrl* Spin_imgres_h;
 		wxStaticText* Text_image_3;
+		wxButton* Button_exit;
+		wxButton* Button_about;
 		wxButton* Button_start;
 		
-		wxButton* Button_about;
-		wxButton* Button_exit;
-		
 		// Virtual event handlers, overide them in your derived class
-		virtual void Matrix_resize( wxSpinEvent& event ){ event.Skip(); }
-		virtual void Start_clicked( wxCommandEvent& event ){ event.Skip(); }
-		virtual void About_clicked( wxCommandEvent& event ){ event.Skip(); }
-		virtual void Exit_clicked( wxCommandEvent& event ){ event.Skip(); }
+		virtual void Matrix_resize( wxSpinEvent& event ) { event.Skip(); }
+		virtual void Exit_clicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void About_clicked( wxCommandEvent& event ) { event.Skip(); }
+		virtual void Start_clicked( wxCommandEvent& event ) { event.Skip(); }
 		
 	
 	public:
+		
 		Main_frame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		
 		~Main_frame();
 	
 };
@@ -86,17 +89,16 @@ class Dialog_about : public wxDialog
 		wxStaticText* Text_title_2;
 		wxStaticBitmap* Bitmap_icon;
 		wxStaticText* Text_descr;
-		
 		wxHyperlinkCtrl* link_stereozoom;
-		
 		wxButton* Button_close;
 		
 		// Virtual event handlers, overide them in your derived class
-		virtual void Close_about( wxCommandEvent& event ){ event.Skip(); }
+		virtual void Close_about( wxCommandEvent& event ) { event.Skip(); }
 		
 	
 	public:
-		Dialog_about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About stereozoom2"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+		
+		Dialog_about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About stereozoom2"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE ); 
 		~Dialog_about();
 	
 };
@@ -115,17 +117,18 @@ class Panel_image : public wxPanel
 		wxFilePickerCtrl* File_picker;
 		
 		// Virtual event handlers, overide them in your derived class
-		virtual void Toggle_preview( wxCommandEvent& event ){ event.Skip(); }
-		virtual void Dragdrop_start( wxMouseEvent& event ){ event.Skip(); }
-		virtual void Repaint( wxPaintEvent& event ){ event.Skip(); }
-		virtual void Chosen_file( wxFileDirPickerEvent& event ){ event.Skip(); }
+		virtual void Toggle_preview( wxCommandEvent& event ) { event.Skip(); }
+		virtual void Dragdrop_start( wxMouseEvent& event ) { event.Skip(); }
+		virtual void Repaint( wxPaintEvent& event ) { event.Skip(); }
+		virtual void Chosen_file( wxFileDirPickerEvent& event ) { event.Skip(); }
 		
 	
 	public:
 		wxCheckBox* Check_use;
-		Panel_image( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL );
+		
+		Panel_image( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL ); 
 		~Panel_image();
 	
 };
 
-#endif //__Base_gui__
+#endif //__BASE_GUI_H__
