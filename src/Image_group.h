@@ -63,8 +63,8 @@ private:
 	void Print_offset();
 	/// Main loop
 	int Loop();
-	/// Test loop
-	int Test_loop();
+	/// Process keypresses
+	void ProcessUserInput(int & loop);
 
 	double Zoom_boost;	///< Zoom multiplier; when thing have to speed up
 	double Move_boost;	///< Move multiplier; when thing have to speed up

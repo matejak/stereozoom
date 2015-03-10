@@ -2,19 +2,22 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([STEREOZOOM2], 1.9, [bubla@users.sf.net]) 
+AC_INIT([STEREOZOOM2], 0.9, [matej.tyc@google.com]) 
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall])
 AC_CONFIG_SRCDIR([src/stereozoom2.h])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
+# Because of the gstz icon
 AC_SUBST([DATA_SUBDIR], 
 	 [stereozoom2])
 
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
+
+AM_PROG_AR
 AC_PROG_LIBTOOL
 LT_PROG_RC
 
@@ -33,7 +36,7 @@ AC_ARG_ENABLE([gui],
 	      [AS_HELP_STRING([--disable-gui], 
 			      [Disables build of wxwidgets GUI (default = yes)] )], 
 	      [], 
-	      [enable_gui="auto (yes)"])
+	      [enable_gui="auto"])
 
 # Checks for libraries.
 AC_CHECK_HEADER([allegro.h],
@@ -65,22 +68,21 @@ AS_IF([test "x$have_allegro" != "xno" -a "x$have_allegro" != "xyes"],
                      LIBS="-lalleg42 $LIBS"]) ])
  
 AS_IF([test "x$have_allegro" != "xyes"],
-      [AC_MSG_ERROR([Unable to find Allegro game programming library 4.2, check out www.allegro.cc (or your distro repositories if you use a unix-like system)]) ])
+      [AC_MSG_ERROR([Unable to find Allegro game programming library 4.x, check out www.allegro.cc (or your distro repositories if you use a unix-like system)]) ])
 
-dnl If the user isn't against it, try to use wxwidgets, and ...
+# If the user isn't against it, try to use wxwidgets, and ...
 AS_IF([test "x$enable_gui" != "xno"], 
-      [AM_PATH_WXCONFIG(2.8.0, 
-       [HAVE_WXWIDGETS=1]) ])
+      [AM_PATH_WXCONFIG(2.8.0, [HAVE_WXWIDGETS=1]) ])
 
-dnl Define the symbol so that Allegro drops the "magic main" stuff and the user is reported on how the attempt to build GUI has ended
+# Define the symbol so that Allegro drops the "magic main" stuff and the user is reported on how the attempt to build GUI has ended
 AS_IF([test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" != "x1"], 
       [enable_gui="no (suitable wxWidgets installation not found)"], 
-      [test  "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" = "x1"], 
+      [test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" = "x1"], 
       [AC_DEFINE([WANT_GUI], 
 		 1, 
 		 [Define if you want to build a wxWidgets GUI]) ])
 
-dnl ... subsequently declare we want to build the gui frontend
+# ... subsequently declare we want to build the gui frontend
 AM_CONDITIONAL([WANT_GUI], 
 	       [test "x$HAVE_WXWIDGETS" = "x1"]) 
 

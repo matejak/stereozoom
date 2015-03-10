@@ -174,11 +174,11 @@ SectionEnd
   LangString DESC_SecLIB ${LANG_ENGLISH} "stereozoom2 library (licensed under LGPL) is useful if you want to develop applications or run applications based on it. You are probably not interested in it unless you are a programmer."
   LangString DESC_SecLIB_H ${LANG_ENGLISH} "header files, you need them if you want to use either of the libraries"
   LangString DESC_SecLIB_DLL ${LANG_ENGLISH} "shared library (DLL). Useful if you need one"
-  LangString DESC_SecLIB_A ${LANG_ENGLISH} "static library. Useful if you want to use stereozoom2 library without forcing people to install the DLL"
+  LangString DESC_SecLIB_A ${LANG_ENGLISH} "static library. Useful if you want to use stereozoom2 library without forcing people to install the DLL.Beware the LGPL licence though."
 
   LangString DESC_SecDAT ${LANG_ENGLISH} "The data files (documentation, sample images)"
   LangString DESC_SecDAT_HELP ${LANG_ENGLISH} "If you want documentation for stereozoom2 interface and the library API"
-  LangString DESC_SecDAT_IMG ${LANG_ENGLISH} "You will loose the last doubts after checking stereozoom2 on these sample images!"
+  LangString DESC_SecDAT_IMG ${LANG_ENGLISH} "You will lose the last doubts after trying stereozoom2 out on these sample images!"
 ;  LangString DESC_Sec ${LANG_ENGLISH} ""
 
   ;Assign language strings to sections

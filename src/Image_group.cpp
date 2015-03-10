@@ -135,8 +135,6 @@ int Image_group::Start()
 
 	if (test == 0)
 		Loop();
-	else
-		Test_loop();
 	// and destroyed afterwards...
 	Destroy_crosshair();
 
@@ -224,86 +222,7 @@ int Image_group::Loop()
 		}//endif (mouse_z)
 		position_mouse_z(0); // just in order to detect another zoom change correctly
 
-		while(keypressed())
-		{// process user input
-			switch (readkey() >> 8)
-			{
-				case KEY_A:
-					if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
-					for(int i = 0; i < Num_images; i++)
-						Images[i].Change_pos( - Move_sens * boost, 0);
-					break;
-				case KEY_S:
-					if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
-					for(int i = 0; i < Num_images; i++)
-						Images[i].Change_pos( 0, Move_sens * boost);
-					break;
-				case KEY_D:
-					if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
-					for(int i = 0; i < Num_images; i++)
-						Images[i].Change_pos( Move_sens * boost, 0);
-					break;
-				case KEY_W:
-					if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
-					for(int i = 0; i < Num_images; i++)
-						Images[i].Change_pos( 0, - Move_sens * boost);
-					break;
-				case KEY_EQUALS:
-					if (key_shifts & KB_SHIFT_FLAG) boost = Zoom_boost; else boost = 1.0;
-					for (int i = 0; i < Num_images; i++)
-						Images[i].Change_zoom(Zoom_sens * boost , -1, -1);
-					break;
-				case KEY_MINUS:
-					if (key_shifts & KB_SHIFT_FLAG) boost = Zoom_boost; else boost = 1.0;
-					for (int i = 0; i < Num_images; i++)
-						Images[i].Change_zoom( - Zoom_sens * boost , -1, -1);
-					break;
-				case KEY_UP:
-					if (Current_image != -1)
-						Images[Current_image].Change_offset(0, 1);
-					Print_offset();
-					break;
-				case KEY_DOWN:
-					if (Current_image != -1)
-						Images[Current_image].Change_offset(0, -1);
-					Print_offset();
-					break;
-				case KEY_LEFT:
-					if (Current_image != -1)
-						Images[Current_image].Change_offset(1, 0);
-					Print_offset();
-					break;
-				case KEY_RIGHT:
-					if (Current_image != -1)
-						Images[Current_image].Change_offset(-1, 0);
-					Print_offset();
-					break;
-				case KEY_8:
-				case KEY_ASTERISK:
-					for(int i = 0; i < Num_images; i++)
-						Images[i].Show_whole_picture();
-					Print_zoom();
-					break;
-				case KEY_SLASH_PAD:
-				case KEY_SLASH:
-					for(int i = 0; i < Num_images; i++)
-						Images[i].Set_zoom(1.0);
-					Display_notice("Zoom ratio 1:1", 10);
-					break;
-				case KEY_F:
-					//display filenames
-					break;
-				case KEY_H:
-					Print_help();
-					break;
-				case KEY_ESC:
-				case KEY_Q:
-					/*Display_notice("REALLY QUIT?\nPress 'y' to quit, other keys to cancel", -1);
-					if (readkey() >> 8 == KEY_Y) */loop = false;
-					break;
-			}//endswitch (readkey() >> 8)
-		}//endwhile(keypressed())
-
+		ProcessUserInput(loop);
 		//adjust everything
 
 		//finally, draw everything
@@ -331,98 +250,42 @@ int Image_group::Loop()
 	return loop;
 }
 
-int Image_group::Test_loop()
-{
+
+void Image_group::ProcessUserInput(int & loop)
+{	
+	// TODO: DRY violation
 	int Num_images = Images.size();
-	position_mouse_z(0);
-	BITMAP * screen_buffer = create_bitmap(SCREEN_W, SCREEN_H);
-
 	double boost = 1.0;
-
-	int mouse_pos[2] = {8,13};
-	position_mouse(mouse_pos[0], mouse_pos[1]);
-
-	int mouse_coords[2] = {mouse_x / Img_dim[0], mouse_y / Img_dim[1]};
-
-	for (int i = 0; i < Num_images ; i++)
-		if (Images[i].Get_coords(0) ==  mouse_coords[0] && Images[i].Get_coords(1) ==  mouse_coords[1])
-		{// going through all images in the stack...
-			Current_image = i;
-			break;
-		}
-	printf("Mouse global coords [%d,%d] in image: %d, image coords [%d,%d]\n", mouse_pos[0], mouse_pos[1], Current_image, Images[Current_image].Get_coords(0), Images[Current_image].Get_coords(1));
-
-	Images[Current_image].Show_whole_picture();
-
-	printf("Showing full picture!\n");
-	printf("\tZoom:\t%.3f\n", Images[Current_image].Get_zoom());
-	//printf("\tPosition: \t%.3f,%.03f\n", Images[Current_image].Get_position(0), Images[Current_image].Get_position(1));
-	printf("Moving far away!\n");
-	int dmouse[2] = {120, 180};
-	Images[Current_image].Change_pos(- dmouse[0], - dmouse[1]);
-	printf("Showing full picture!\n");
-	Images[Current_image].Show_whole_picture();
-
-	int coord_x = 53, coord_y = 55;
-	int color = getpixel(Images[Current_image], coord_x, coord_y);
-	unsigned char
-		r = getr(color),
-		g = getg(color),
-		b = getb(color);
-	printf("\tColor at [%d,%d]:\t(%u,%u,%u)\n", coord_x, coord_y, r, g, b);
-
-
-	//read user input
-
-	if (mouse_b & 1) //left button is pressed, someone is trying to drag...
-	{
-		if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
-		int dmouse_x, dmouse_y;
-		get_mouse_mickeys(& dmouse_x, & dmouse_y);
-		for (int i = 0; i < Num_images; i++)
-			Images[i].Change_pos(- dmouse_x * boost, - dmouse_y * boost);
-	}//endif (mouse_b & 1)
-
-	if (mouse_z) //if change of zoom occured
-	{
-		if (key_shifts & KB_SHIFT_FLAG) boost = Zoom_boost; else boost = 1.0;
-		for (int i = 0; i < Num_images; i++)
-			Images[i].Change_zoom(mouse_z * Zoom_sens * boost , mouse_x % Img_dim[0] , mouse_y % Img_dim[1]);
-		Print_zoom();
-	}//endif (mouse_z)
-	position_mouse_z(0); // just in order to detect another zoom change correctly
 
 	while(keypressed())
 	{// process user input
+		if (key_shifts & KB_SHIFT_FLAG) 
+			boost = Move_boost; 
+		else 
+			boost = 1.0;
 		switch (readkey() >> 8)
 		{
 			case KEY_A:
-				if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
 				for(int i = 0; i < Num_images; i++)
 					Images[i].Change_pos( - Move_sens * boost, 0);
 				break;
 			case KEY_S:
-				if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
 				for(int i = 0; i < Num_images; i++)
 					Images[i].Change_pos( 0, Move_sens * boost);
 				break;
 			case KEY_D:
-				if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
 				for(int i = 0; i < Num_images; i++)
 					Images[i].Change_pos( Move_sens * boost, 0);
 				break;
 			case KEY_W:
-				if (key_shifts & KB_SHIFT_FLAG) boost = Move_boost; else boost = 1.0;
 				for(int i = 0; i < Num_images; i++)
 					Images[i].Change_pos( 0, - Move_sens * boost);
 				break;
 			case KEY_EQUALS:
-				if (key_shifts & KB_SHIFT_FLAG) boost = Zoom_boost; else boost = 1.0;
 				for (int i = 0; i < Num_images; i++)
 					Images[i].Change_zoom(Zoom_sens * boost , -1, -1);
 				break;
 			case KEY_MINUS:
-				if (key_shifts & KB_SHIFT_FLAG) boost = Zoom_boost; else boost = 1.0;
 				for (int i = 0; i < Num_images; i++)
 					Images[i].Change_zoom( - Zoom_sens * boost , -1, -1);
 				break;
@@ -459,38 +322,18 @@ int Image_group::Test_loop()
 				Display_notice("Zoom ratio 1:1", 10);
 				break;
 			case KEY_F:
-
+				//display filenames
 				break;
 			case KEY_H:
 				Print_help();
 				break;
+			case KEY_ESC:
+			case KEY_Q:
+				/*Display_notice("REALLY QUIT?\nPress 'y' to quit, other keys to cancel", -1);
+				if (readkey() >> 8 == KEY_Y) */loop = false;
+				break;
 		}//endswitch (readkey() >> 8)
 	}//endwhile(keypressed())
-
-	//adjust everything
-
-	//finally, draw everything
-
-	clear_to_color(screen_buffer, makecol(0,0,0));
-
-	for (int i = 0; i < Num_images; i++)
-	{
-		blit(Images[i], screen_buffer, 0, 0, Images[i].Get_position(0), Images[i].Get_position(1), Img_dim[0], Img_dim[1]);
-
-		draw_sprite(screen_buffer, Crosshair, (mouse_x % Img_dim[0]) + Images[i].Get_position(0) - Crosshair->w / 2, (mouse_y % Img_dim[1]) + Images[i].Get_position(1) - Crosshair->h / 2);
-	}
-	circle(screen_buffer, mouse_x, mouse_y, 5, makecol(255,255,0)); //to distinguish the real mouse position
-
-	if (Duration)
-		draw_trans_sprite(screen_buffer, Notice, 5, 5);
-
-	// double buffering :-)
-	blit(screen_buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-
-
-
-	destroy_bitmap(screen_buffer);	screen_buffer = 0;
-	return 0;
 }
 
 void Image_group::Make_crosshair()
@@ -508,7 +351,7 @@ void Image_group::Make_crosshair()
 void Image_group::Print_help()
 {
 	const char * message = "STEREOZOOM HELP\n\nUse your mouse wheel to zoom in and out.\nand then move it with the mouse.\n\
-Hold SHIFT to speed moving and zooming up.\nPress / to the 1:1 ratio.\nFinally, press ESC or q to quit.";
+Hold SHIFT to speed moving and zooming up.\nPress / to the 1:1 ratio and * to fit to the screen.\nFinally, press ESC or q to quit.";
 	Display_notice(message, 50);
 }
 

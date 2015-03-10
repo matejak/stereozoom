@@ -80,7 +80,7 @@ None suggested yet
 If you have low zoom during viewing, weird things may ocur. Also make yourself sure that you have enough memory :-)
 
 .SH SEE ALSO
-http://stereozoom2.sourceforge.net, http://213.211.57.37/dokuwiki/doku.php/public:stereozoom2
+http://stereozoom2.sourceforge.net, http://lala/dokuwiki/doku.php/public:stereozoom2
 
 .SH AUTHOR
 Matěj Týč (Matej Tyc), matej.tyc at gmail.com 
