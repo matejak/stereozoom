@@ -4,7 +4,7 @@
 AC_PREREQ(2.61)
 AC_INIT([STEREOZOOM2], 0.9, [matej.tyc@google.com]) 
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([-Wall])
+AM_INIT_AUTOMAKE([-Wall foreign])
 AC_CONFIG_SRCDIR([src/stereozoom2.h])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])

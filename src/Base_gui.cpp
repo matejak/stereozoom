@@ -46,19 +46,35 @@ Main_frame::Main_frame( wxWindow* parent, wxWindowID id, const wxString& title, 
 	Text_image_1->Wrap( -1 );
 	bSizer12->Add( Text_image_1, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxLEFT, 5 );
 	
-	Spin_imgres_w = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 6400, 200 );
+	Spin_imgres_w = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 64000, 200 );
+	Spin_imgres_w->SetMinSize( wxSize( 100,-1 ) );
+	
 	bSizer12->Add( Spin_imgres_w, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxRIGHT, 5 );
 	
 	Text_image_2 = new wxStaticText( this, wxID_ANY, wxT("px, height:"), wxDefaultPosition, wxDefaultSize, 0 );
 	Text_image_2->Wrap( -1 );
 	bSizer12->Add( Text_image_2, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM, 5 );
 	
-	Spin_imgres_h = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 4800, 300 );
+	Spin_imgres_h = new wxSpinCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 48000, 300 );
+	Spin_imgres_h->SetMinSize( wxSize( 100,-1 ) );
+	
 	bSizer12->Add( Spin_imgres_h, 0, wxTOP|wxBOTTOM|wxRIGHT|wxALIGN_CENTER_VERTICAL, 5 );
 	
 	Text_image_3 = new wxStaticText( this, wxID_ANY, wxT("px."), wxDefaultPosition, wxDefaultSize, 0 );
 	Text_image_3->Wrap( -1 );
 	bSizer12->Add( Text_image_3, 0, wxALIGN_CENTER_VERTICAL|wxTOP|wxBOTTOM|wxRIGHT, 5 );
+	
+	wxStaticBoxSizer* sbSizer31;
+	sbSizer31 = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, wxT("presets") ), wxHORIZONTAL );
+	
+	preset_small = new wxButton( this, wxID_ANY, wxT("small"), wxDefaultPosition, wxDefaultSize, 0 );
+	sbSizer31->Add( preset_small, 0, wxALL, 5 );
+	
+	preset_big = new wxButton( this, wxID_ANY, wxT("BIG"), wxDefaultPosition, wxDefaultSize, 0 );
+	sbSizer31->Add( preset_big, 0, wxALL, 5 );
+	
+	
+	bSizer12->Add( sbSizer31, 1, wxEXPAND, 5 );
 	
 	
 	sbSizer3->Add( bSizer12, 1, wxEXPAND, 5 );
@@ -94,6 +110,8 @@ Main_frame::Main_frame( wxWindow* parent, wxWindowID id, const wxString& title, 
 	// Connect Events
 	Spin_matrix_w->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
 	Spin_matrix_h->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
+	preset_small->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::setPresetSmall ), NULL, this );
+	preset_big->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::setPresetBig ), NULL, this );
 	Button_exit->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Exit_clicked ), NULL, this );
 	Button_about->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::About_clicked ), NULL, this );
 	Button_start->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Start_clicked ), NULL, this );
@@ -104,6 +122,8 @@ Main_frame::~Main_frame()
 	// Disconnect Events
 	Spin_matrix_w->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
 	Spin_matrix_h->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( Main_frame::Matrix_resize ), NULL, this );
+	preset_small->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::setPresetSmall ), NULL, this );
+	preset_big->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::setPresetBig ), NULL, this );
 	Button_exit->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Exit_clicked ), NULL, this );
 	Button_about->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::About_clicked ), NULL, this );
 	Button_start->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( Main_frame::Start_clicked ), NULL, this );

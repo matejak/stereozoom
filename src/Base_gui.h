@@ -18,8 +18,8 @@
 #include <wx/settings.h>
 #include <wx/spinctrl.h>
 #include <wx/sizer.h>
-#include <wx/statbox.h>
 #include <wx/button.h>
+#include <wx/statbox.h>
 #include <wx/frame.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
@@ -58,12 +58,16 @@ class Main_frame : public wxFrame
 		wxStaticText* Text_image_2;
 		wxSpinCtrl* Spin_imgres_h;
 		wxStaticText* Text_image_3;
+		wxButton* preset_small;
+		wxButton* preset_big;
 		wxButton* Button_exit;
 		wxButton* Button_about;
 		wxButton* Button_start;
 		
 		// Virtual event handlers, overide them in your derived class
 		virtual void Matrix_resize( wxSpinEvent& event ) { event.Skip(); }
+		virtual void setPresetSmall( wxCommandEvent& event ) { event.Skip(); }
+		virtual void setPresetBig( wxCommandEvent& event ) { event.Skip(); }
 		virtual void Exit_clicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void About_clicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void Start_clicked( wxCommandEvent& event ) { event.Skip(); }
