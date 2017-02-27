@@ -32,6 +32,83 @@ template <class T, int num>
 void copy_array(const T * source, T * dest)
 {for (int i = 0; i < num; i++) dest[i] = (source ? source[i] : 0);}		//if source == 0, treat is as a 0 vector
 
+
+template <class T>
+class XY
+{
+public:
+	XY<T> operator +(const XY<T> & rhs) const
+	{
+		XY<T> result = * this;
+		result += rhs;
+		return result;
+	}
+	XY<T> operator -() const
+	{
+		XY<T> result = * this;
+		result *= -1;
+		return result;
+	}
+	XY<T> operator -(const XY<T> & rhs) const
+	{
+		XY<T> result = * this;
+		result += -rhs;
+		return result;
+	}
+	XY<T> operator +=(const XY<T> & rhs)
+	{
+		XY<T> result = * this;
+		x += rhs.x;
+		y += rhs.y;
+		return * this;
+	}
+	XY<T> operator *=(double rhs)
+	{
+		x *= rhs;
+		y *= rhs;
+		return * this;
+	}
+	XY<T> operator *=(const XY<T> & rhs)
+	{
+		x *= rhs.x;
+		y *= rhs.y;
+		return * this;
+	}
+	XY<T> operator *(const XY<T> & rhs) const
+	{
+		XY<T> result = * this;
+		result *= rhs;
+		return result;
+	}
+	XY<T> operator /=(double rhs)
+	{
+		x *= 1 / rhs;
+		y *= 1 / rhs;
+		return * this;
+	}
+	XY<T> operator /(double rhs) const
+	{
+		XY<T> result = * this;
+		result /= rhs;
+		return result;
+	}
+	XY<T> operator /=(const XY<T> & rhs)
+	{
+		x /= rhs.x;
+		y /= rhs.y;
+		return * this;
+	}
+	XY<T> operator /(const XY<T> & rhs) const
+	{
+		XY<T> result = * this;
+		result /= rhs;
+		return result;
+	}
+	XY(): x(0), y(0) {}
+	T x;
+	T y;
+};
+
 /// This class stores the filename and coordinates of a picture
 class Entry
 {

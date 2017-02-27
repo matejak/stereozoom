@@ -140,3 +140,24 @@ void Image::Show_whole_picture()
 
 	}
 }
+
+Image2 Loader::loadFromFile(const char * filename)
+{
+	// IL overhead
+	ILuint loaded_image;
+	ilGenImages(1, & loaded_image);
+	ilBindImage(loaded_image);
+	ilLoadImage(filename);
+
+	// We read parameters and data
+	unsigned int width = ilGetInteger(IL_IMAGE_WIDTH);
+	unsigned int height = ilGetInteger(IL_IMAGE_HEIGHT);
+	int to_allocate = width * height * 3;
+	unsigned char * image_data = (unsigned char *) new unsigned char [to_allocate];
+	ilCopyPixels(0, 0, 0, width, height, 1, IL_RGB, IL_UNSIGNED_BYTE, (void *)image_data );
+
+	// We create the result
+	Image2 ret;
+	ret.supplyData(image_data, width, height, filename);
+	return ret;
+}

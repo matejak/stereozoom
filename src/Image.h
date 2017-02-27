@@ -5,6 +5,7 @@
 
 #include <allegro.h>
 #include <IL/il.h>
+#include <string>
 
 ///Class Image does everything connected with drawing
 class Image
@@ -66,5 +67,59 @@ private:
 
 	Rectangle Rect; ///< Rect controls carrying out of user's orders
 };
+
+
+class Image2;
+
+
+class Loader
+{
+public:
+	virtual Image2 loadFromFile(const char * filename) = 0;
+};
+
+
+class ILLoader: Loader
+{
+public:
+	ILLoader()
+	{
+		ilInit();
+		ilEnable(IL_ORIGIN_SET);
+	}
+	~ILLoader()
+	{
+	}
+	Image2 loadFromFile(const char * filename);
+};
+
+
+class Image2
+{
+public:
+	Image2():data(0) {}
+	~Image2() 
+	{
+		if (data)
+		{
+			delete [] data;
+		}
+		data = 0;
+	}
+	void supplyData(void * data, unsigned int width, unsigned int height, const char * filename)
+	{
+		this->width = width;
+		this->height = height;
+		this->filename = std::string(filename);
+
+		this->data = (unsigned char *)data;
+	}
+
+	unsigned int width;
+	unsigned int height;
+	std::string filename;
+	unsigned char * data;
+};
+
 
 #endif /*IMAGE_H_*/
