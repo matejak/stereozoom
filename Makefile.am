@@ -1,2 +1,5 @@
 ACLOCAL_AMFLAGS= -I m4
-SUBDIRS = bin docs rsrc
+
+include bin/Makefile.am
+
+SUBDIRS = docs rsrc
