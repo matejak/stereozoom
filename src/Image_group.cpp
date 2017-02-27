@@ -1,6 +1,6 @@
 /*
  * Image_group.cpp
- * Copyright (C) Matej Tyc 2007 <muna@stcomp.cz>
+ * Copyright (C) Matěj Týč 2007-2017 <matej.tyc@gmail.com>
  *
  * Image_group.cpp is is part of stereozoom2
  *
@@ -252,16 +252,16 @@ int Image_group::Loop()
 
 
 void Image_group::ProcessUserInput(int & loop)
-{	
+{
 	// TODO: DRY violation
 	int Num_images = Images.size();
 	double boost = 1.0;
 
 	while(keypressed())
 	{// process user input
-		if (key_shifts & KB_SHIFT_FLAG) 
-			boost = Move_boost; 
-		else 
+		if (key_shifts & KB_SHIFT_FLAG)
+			boost = Move_boost;
+		else
 			boost = 1.0;
 		switch (readkey() >> 8)
 		{

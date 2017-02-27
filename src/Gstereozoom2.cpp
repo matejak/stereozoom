@@ -1,6 +1,6 @@
 /*
  * Gstereozoom2.cpp
- * Copyright (C) Matej Tyc 2007 <muna@stcomp.cz>
+ * Copyright (C) Matěj Týč 2007-2017 <matej.tyc@gmail.com>
  *
  * Gstereozoom2.cpp is is part of stereozoom2
  *

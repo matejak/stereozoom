@@ -1,6 +1,6 @@
 /*
  * Main_gui.cpp
- * Copyright (C) Matej Tyc 2007 <muna@stcomp.cz>
+ * Copyright (C) Matěj Týč 2007-2017 <matej.tyc@gmail.com>
  *
  * Main_gui.cpp is is part of stereozoom2
  *
@@ -36,7 +36,7 @@ bool MY_wxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&
 {
 	if(filenames.IsEmpty())
 		return false;
-	
+
 	Owner->File_drop(filenames[0]);
 	return true;
 }
@@ -61,7 +61,7 @@ void Main_window::Regroup_panels()
 {
 	int spin_x = Spin_matrix_w->GetValue(),
 		spin_y = Spin_matrix_h->GetValue();
-	const int old_size[] = { Images_size[X], Images_size[Y] }; 
+	const int old_size[] = { Images_size[X], Images_size[Y] };
 	int current_size[Z];
 	copy_array<int, Z>(old_size, current_size);
 	const int new_size[] = { spin_x, spin_y };
@@ -69,7 +69,7 @@ void Main_window::Regroup_panels()
 	// this is needed in order to make smart vectorized stuff
 	void (wxFlexGridSizer::* add[Z]) (size_t, int) = { & wxFlexGridSizer::AddGrowableCol, & wxFlexGridSizer::AddGrowableRow};
 	void (wxFlexGridSizer::* remove[Z]) (size_t) = { & wxFlexGridSizer::RemoveGrowableCol, & wxFlexGridSizer::RemoveGrowableRow};
-	
+
 	wxSizerFlags flags(1);
 	flags.Expand();
 	for (int i = 0; i < Z; i++)
@@ -216,7 +216,7 @@ bool Image_panel::Load_image()
 		wxMessageDialog(this, wxT("You won't see the image preview now since the format is not common. I just hope that you actually selected a valid image..."), wxT("Unusual format"), wxOK | wxICON_EXCLAMATION);
 		return false;
 	}
-	else 
+	else
 		return true;
 }
 
@@ -262,7 +262,7 @@ void Image_panel::Dragdrop_start( wxMouseEvent& event )
 void Image_panel::Toggle_preview( wxCommandEvent& event )
 {
 	if(Check_preview->IsChecked())
-		Paint_image();	
+		Paint_image();
 	else //preview is not checked
 		Refresh();
 

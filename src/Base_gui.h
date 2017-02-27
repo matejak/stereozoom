@@ -44,10 +44,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// Class Main_frame
 ///////////////////////////////////////////////////////////////////////////////
-class Main_frame : public wxFrame 
+class Main_frame : public wxFrame
 {
 	private:
-	
+
 	protected:
 		wxStaticText* m_staticText12;
 		wxSpinCtrl* Spin_matrix_w;
@@ -63,7 +63,7 @@ class Main_frame : public wxFrame
 		wxButton* Button_exit;
 		wxButton* Button_about;
 		wxButton* Button_start;
-		
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void Matrix_resize( wxSpinEvent& event ) { event.Skip(); }
 		virtual void setPresetSmall( wxCommandEvent& event ) { event.Skip(); }
@@ -71,23 +71,23 @@ class Main_frame : public wxFrame
 		virtual void Exit_clicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void About_clicked( wxCommandEvent& event ) { event.Skip(); }
 		virtual void Start_clicked( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
+
 		Main_frame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-		
+
 		~Main_frame();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class Dialog_about
 ///////////////////////////////////////////////////////////////////////////////
-class Dialog_about : public wxDialog 
+class Dialog_about : public wxDialog
 {
 	private:
-	
+
 	protected:
 		wxStaticText* Text_title_1;
 		wxStaticText* Text_title_2;
@@ -95,44 +95,44 @@ class Dialog_about : public wxDialog
 		wxStaticText* Text_descr;
 		wxHyperlinkCtrl* link_stereozoom;
 		wxButton* Button_close;
-		
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void Close_about( wxCommandEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
-		
-		Dialog_about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About stereozoom2"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE ); 
+
+		Dialog_about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About stereozoom2"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
 		~Dialog_about();
-	
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class Panel_image
 ///////////////////////////////////////////////////////////////////////////////
-class Panel_image : public wxPanel 
+class Panel_image : public wxPanel
 {
 	private:
-	
+
 	protected:
 		wxCheckBox* Check_preview;
 		wxPanel* Image_space;
 		wxStaticLine* Line_image;
 		wxFilePickerCtrl* File_picker;
-		
+
 		// Virtual event handlers, overide them in your derived class
 		virtual void Toggle_preview( wxCommandEvent& event ) { event.Skip(); }
 		virtual void Dragdrop_start( wxMouseEvent& event ) { event.Skip(); }
 		virtual void Repaint( wxPaintEvent& event ) { event.Skip(); }
 		virtual void Chosen_file( wxFileDirPickerEvent& event ) { event.Skip(); }
-		
-	
+
+
 	public:
 		wxCheckBox* Check_use;
-		
-		Panel_image( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL ); 
+
+		Panel_image( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxTAB_TRAVERSAL );
 		~Panel_image();
-	
+
 };
 
 #endif //__BASE_GUI_H__
