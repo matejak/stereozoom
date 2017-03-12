@@ -9,6 +9,8 @@ endif
 lib_LTLIBRARIES = libstereozoom2.la
 
 libstereozoom2_la_SOURCES = \
+	src/Change.h \
+	src/Change.cpp \
 	src/Image_group.h \
 	src/Image_group.cpp \
 	src/Rectangle.h \
@@ -21,6 +23,7 @@ libstereozoom2_la_SOURCES = \
 	$(NUL)
 
 include_HEADERS = \
+	src/Change.h \
 	src/Image_group.h \
 	src/Rectangle.h \
 	src/Image.h \
@@ -30,6 +33,7 @@ include_HEADERS = \
 libstereozoom2_la_LIBADD = $(allegro_LIBS)
 
 stereozoom2_SOURCES = \
+	src/Change.h \
 	src/Rectangle.h \
 	src/Image.h \
 	src/Image_group.h \
@@ -43,6 +47,7 @@ stereozoom2_SOURCES = \
 stereozoom2_LDADD = libstereozoom2.la $(allegro_LIBS) 
 
 gstereozoom2_SOURCES = \
+	src/Change.h \
 	src/Rectangle.h \
 	src/Image.h \
 	src/Image_group.h \

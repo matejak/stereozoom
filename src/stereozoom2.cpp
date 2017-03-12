@@ -27,6 +27,18 @@
 #include <cstdlib>
 #include "Image_group.h"
 
+void start()
+{
+	allegro_init();
+
+	install_keyboard();
+	install_mouse();
+
+	install_timer();
+	set_alpha_blender();
+}
+
+
 stereozoom2::stereozoom2(const char * arguments)
 {
 	string args = arguments;	//not to destroy the passed string (that is moreover const)
@@ -52,6 +64,16 @@ stereozoom2::stereozoom2(const char * arguments)
 		return;
 	}
 
+	verbose = true;
+	start();
+	AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, 400, 300);
+	AllegroUI ui(stereotuple);
+	ui.createBuffer();
+	ILLoader loader;
+	for (unsigned int i = 0; i < Entries.size(); i++)
+		stereotuple.LoadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
+	ui.mainLoop();
+	/*
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
 		Image_group stereopair;
 		stereopair.Init(& Resolution[0], & Max_coords[0]);
@@ -60,8 +82,9 @@ stereozoom2::stereozoom2(const char * arguments)
 
 		stereopair.Start();
 	}
-	allegro_exit();	//to shut down graphic mode
+	*/
 }
+
 
 int stereozoom2::Parse_args(const char * input)
 {

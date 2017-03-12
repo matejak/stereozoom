@@ -24,9 +24,6 @@
 #include "Rectangle.h"
 
 #include <cstdio>
-#include "stereozoom2.h"
-
-
 int Rectangle::Init(int pic_dim[2], int img_dim[2])
 {
 	copy_array<int,2>(pic_dim, Pic_dim);

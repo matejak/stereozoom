@@ -75,11 +75,11 @@ class Image2;
 class Loader
 {
 public:
-	virtual Image2 loadFromFile(const char * filename) = 0;
+	virtual void loadFromFileToImage(const char * filename, Image2 * result) const = 0;
 };
 
 
-class ILLoader: Loader
+class ILLoader: public Loader
 {
 public:
 	ILLoader()
@@ -90,35 +90,59 @@ public:
 	~ILLoader()
 	{
 	}
-	Image2 loadFromFile(const char * filename);
+	void loadFromFileToImage(const char * filename, Image2 * result) const;
 };
 
 
+// TODO: supplyData gets RGB data, saves them to its own structure.
 class Image2
 {
 public:
-	Image2():data(0) {}
-	~Image2() 
-	{
-		if (data)
-		{
-			delete [] data;
-		}
-		data = 0;
-	}
-	void supplyData(void * data, unsigned int width, unsigned int height, const char * filename)
+	Image2() {}
+	virtual ~Image2() {}
+	void supplyData(unsigned char * rgbData, unsigned int width, unsigned int height, const char * filename)
 	{
 		this->width = width;
 		this->height = height;
 		this->filename = std::string(filename);
 
-		this->data = (unsigned char *)data;
+		mkImageDataStructure(rgbData);
 	}
+
+	virtual bool isEmpty() const = 0;
 
 	unsigned int width;
 	unsigned int height;
 	std::string filename;
-	unsigned char * data;
+protected:
+	virtual void mkImageDataStructure(unsigned char * rgbData) = 0;
+};
+
+
+class AllegroImage: public Image2
+{
+public:
+	AllegroImage():Image2(), bitmap(0) {}
+	virtual ~AllegroImage()
+	{
+		clean();
+	}
+	BITMAP * bitmap;
+	virtual bool isEmpty() const
+	{
+		return (bitmap == 0);
+	}
+protected:
+	virtual void mkImageDataStructure(unsigned char * rgbdata);
+	void clean()
+	{
+		if (bitmap)
+		{
+			// TODO: Should not be called before Allegro exits
+			destroy_bitmap(bitmap);
+			bitmap = 0;
+		}
+	}
 };
 
 

@@ -20,10 +20,13 @@
 
 #include <string>
 #include <vector>
+#include <valarray>
+using std::valarray;
 
 enum mode {GROW_DEFAULT, GROW_ROWS, GROW_COLS};
 enum expected {EXP_NONE = 0x1, EXP_FILE = 0x2, EXP_SPACE = 0x4, EXP_RES = 0x8, EXP_MATRIX = 0x10, EXP_POSITION = 0x20};
 enum matlage {MTL_RESOLUTION, MTL_FILENAME, MTL_FORMAT, MTL_EXPECT, MTL_MATRIX, MTL_POSITION, MTL_HELP, MTL_ERRORRE};
+enum {X=0, Y, Z};
 
 ///An inline function that should be used to copy arrays of objects supporting operator =
 /**
@@ -33,6 +36,37 @@ void copy_array(const T * source, T * dest)
 {for (int i = 0; i < num; i++) dest[i] = (source ? source[i] : 0);}		//if source == 0, treat is as a 0 vector
 
 
+template <class T>
+valarray<T> XY()
+{
+	valarray<T> ret(2);
+	ret[X] = 0;
+	ret[Y] = 0;
+	return ret;
+}
+
+
+template <class T>
+valarray<T> XY(T one, T two)
+{
+	valarray<T> ret(2);
+	ret[X] = one;
+	ret[Y] = two;
+	return ret;
+}
+
+
+template <class T, class U>
+valarray<T> XY(valarray<U> other)
+{
+	valarray<T> ret(2);
+	ret[X] = T(other[X]);
+	ret[Y] = T(other[Y]);
+	return ret;
+}
+
+
+/*
 template <class T>
 class XY
 {
@@ -105,9 +139,11 @@ public:
 		return result;
 	}
 	XY(): x(0), y(0) {}
+	XY(T x, T y): x(x), y(y) {}
 	T x;
 	T y;
 };
+*/
 
 /// This class stores the filename and coordinates of a picture
 class Entry
@@ -148,7 +184,6 @@ private:
 };
 
 enum corner {ULX = 0, ULY, LRX, LRY, UPPER_LEFT_X = 0, UPPER_LEFT_Y, LOWER_RIGHT_X, LOWER_RIGHT_Y};
-enum coord {X, Y, Z};
 
 extern int verbose, test;
 
