@@ -39,6 +39,12 @@ void start()
 }
 
 
+void finish()
+{
+	allegro_exit();
+}
+
+
 stereozoom2::stereozoom2(const char * arguments)
 {
 	string args = arguments;	//not to destroy the passed string (that is moreover const)
@@ -66,23 +72,16 @@ stereozoom2::stereozoom2(const char * arguments)
 
 	verbose = true;
 	start();
-	AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, 300, 400);
-	AllegroUI ui(stereotuple);
-	ui.createBuffer();
-	ILLoader loader;
-	for (unsigned int i = 0; i < Entries.size(); i++)
-		stereotuple.LoadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
-	ui.mainLoop();
-	/*
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
-		Image_group stereopair;
-		stereopair.Init(& Resolution[0], & Max_coords[0]);
+		AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
+		AllegroUI ui(stereotuple);
+		ui.createBuffer();
+		ILLoader loader;
 		for (unsigned int i = 0; i < Entries.size(); i++)
-			stereopair.Add_image(Entries[i].Filename, & Entries[i].Coords[0]);
-
-		stereopair.Start();
+			stereotuple.LoadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
+		ui.mainLoop();
 	}
-	*/
+	finish();
 }
 
 

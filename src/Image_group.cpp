@@ -26,6 +26,42 @@
 #include "Image_group.h"
 
 
+void AllegroImageGrid::blit(BITMAP * buffer)
+{
+	int vertical_offset, horizontal_offset;
+	for (int ii = 0; ii < images.size(); ii++)
+	{
+		valarray<unsigned int> image_xy = indexToXY(ii);
+		horizontal_offset = image_xy[X] * view_size[X];
+		vertical_offset = image_xy[Y] * view_size[Y];
+
+		AllegroImage * image = (AllegroImage *)images[ii];
+		BlitData coords = views[ii]->getBlitData();
+		stretch_blit(image->bitmap, buffer, 
+				coords.from_start[X], coords.from_start[Y],
+				coords.getFromSize()[X], coords.getFromSize()[Y],
+				coords.to_start[X] + horizontal_offset, coords.to_start[Y] + vertical_offset,
+				coords.getToSize()[X], coords.getToSize()[Y]
+			    );
+	}
+}
+
+
+void AllegroImageGrid::draw_crosshairs(BITMAP * buffer, unsigned int coord_x, unsigned int coord_y)
+{
+	valarray <unsigned int> base_coordinate = XY<unsigned int>(coord_x % view_size[X], coord_y % view_size[Y]);
+	for (int ii = 0; ii < images.size(); ii++)
+	{
+		valarray<unsigned int> base_coordinate_multiplier = indexToXY(ii);
+		valarray<unsigned int> destination = base_coordinate_multiplier * view_size + base_coordinate;
+		if (destination[X] == coord_x && destination[Y] == coord_y)
+			focused_crosshair.draw(buffer, destination[X], destination[Y]);
+		else
+			normal_crosshair.draw(buffer, destination[X], destination[Y]);
+	}
+}
+
+
 void AllegroImageGrid::LoadImageWhere(const char * filename, int x, int y, const Loader * loader)
 {
 	int image_index = xyToIndex(x, y);
@@ -51,8 +87,7 @@ void AllegroImageGrid::LoadImageWhere(const char * filename, int x, int y, const
 }
 
 
-volatile int Image_group::Duration = 0;
-
+/*
 Image_group::Image_group()
 {
 	ilInit();
@@ -106,11 +141,6 @@ Image_group::~Image_group()
 	destroy_bitmap(Crosshair);	Crosshair = 0;
 }
 
-/**
- * \param filename The filename of the image
- * \param x The horizontal coordinate of the image in the program
- * \param y The vertical coordinate
- */
 int Image_group::Add_image(string filename, int img_coords[2] )
 {
 	int coords[2];
@@ -168,15 +198,6 @@ int Image_group::Start()
 	return 0;
 }
 
-/**
- * \param text The text we want to display. It will be copied here to a safe location (of course)
- * \param time_decsecs Time for how long (in tenth of seconds) we want the message to be displayed
- * Internal details:
- *
- * First of all, the text is broken into rows. They are then put into vectors. The length of
- * the longest row is recorded. Then the corresponding notice bitmap is made and we tell how long the
- * loop should display it...
- */
 void Image_group::Display_notice(const char * text, int time_decsecs)
 {
 	vector<string> rows;
@@ -357,7 +378,7 @@ void Image_group::ProcessUserInput(int & loop)
 			case KEY_ESC:
 			case KEY_Q:
 				/*Display_notice("REALLY QUIT?\nPress 'y' to quit, other keys to cancel", -1);
-				if (readkey() >> 8 == KEY_Y) */loop = false;
+				// if (readkey() >> 8 == KEY_Y) loop = false;
 				break;
 		}//endswitch (readkey() >> 8)
 	}//endwhile(keypressed())
@@ -399,6 +420,7 @@ void Image_group::Print_offset()
 	sprintf(buffer, "Current offset: (x) %d , (y) %d pixels", offset[0], offset[1]);
 	Display_notice(buffer, 10);
 }
+*/
 
 
 valarray<int> AllegroImageGrid::getViewCoordinates() const
@@ -575,4 +597,46 @@ void Crosshair::createNormal(unsigned int size)
 	circle(bitmap, bitmap->w / 2, bitmap->h / 2, (bitmap->w * 1) / 3, 0);
 	hline(bitmap, 0, bitmap->h / 2, bitmap->w, makecol(255, 255, 255));
 	vline(bitmap, bitmap->w / 2, 0, bitmap->h, makecol(255, 255, 255));
+}
+
+
+
+MessageService::~MessageService()
+{
+	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
+	{
+		delete * it;
+		messages.erase(it);
+	}
+}
+
+
+void AllegroMessageService::displayMessages() const
+{
+	vector<string> rows;
+	string temp, text;
+	unsigned int max_row_len = 0, num_rows = 0;
+	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
+	{
+		text = (* it)->getMessageText();
+		for (unsigned int i = 0, current_length = 0; i <= text.size(); current_length++, i++)
+		{// trying to put all rows into a vector and also to determine length of the longest row
+			if (text[i] == '\n' || text[i] == '\0')
+			{// another row finished!
+				rows.push_back(temp);
+				num_rows++;
+				max_row_len = MAX<int>(max_row_len, current_length);
+				// now just setting back to original values
+				current_length = 0;
+				temp = "";
+				continue;
+			}
+			temp += text[i];	// quite important, filling the string that will be put into the vector later
+		}
+		text += "\n";
+	}
+	int color = makeacol(64, 64, 64, 96);
+	rectfill(screen_buffer, 0, 0, max_row_len * text_length(font, "@") + 10, num_rows * text_height(font) + 10, color);
+	for (unsigned int i = 0; i < rows.size(); i++)
+		textout_ex(screen_buffer, font, rows[i].c_str(), 5, i * text_height(font) + 5, makeacol32(255,255,255,192), -1);
 }

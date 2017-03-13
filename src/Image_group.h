@@ -3,6 +3,8 @@
 
 #include <vector>
 using std::vector;
+#include <set>
+using std::set;
 #include <string>
 using std::string;
 #include <stdexcept>
@@ -139,7 +141,7 @@ protected:
 		change->transformView(view);
 	}
 
-	Image2 * getImageAtGridCoord(int x, int y)
+	Image * getImageAtGridCoord(int x, int y)
 	{
 		return images[xyToIndex(x, y)];
 	}
@@ -154,7 +156,7 @@ protected:
 		return x + grid_shape[X] * y;
 	}
 
-	vector<Image2 *> images;
+	vector<Image *> images;
 	vector<ViewWithRectangle *> views;
 
 	valarray<unsigned int> view_size;
@@ -177,39 +179,9 @@ public:
 	}
 
 	virtual void LoadImageWhere(const char * filename, int x, int y, const Loader * loader);
-	virtual void blit(BITMAP * buffer)
-	{
-		int vertical_offset, horizontal_offset;
-		for (int ii = 0; ii < images.size(); ii++)
-		{
-			valarray<unsigned int> image_xy = indexToXY(ii);
-			horizontal_offset = image_xy[X] * view_size[X];
-			vertical_offset = image_xy[Y] * view_size[Y];
+	virtual void blit(BITMAP * buffer);
 
-			AllegroImage * image = (AllegroImage *)images[ii];
-			BlitData coords = views[ii]->getBlitData();
-			stretch_blit(image->bitmap, buffer, 
-					coords.from_start[X], coords.from_start[Y],
-					coords.getFromSize()[X], coords.getFromSize()[Y],
-					coords.to_start[X] + horizontal_offset, coords.to_start[Y] + vertical_offset,
-					coords.getToSize()[X], coords.getToSize()[Y]
-				    );
-		}
-	}
-
-	void draw_crosshairs(BITMAP * buffer, unsigned int coord_x, unsigned int coord_y)
-	{
-		valarray <unsigned int> base_coordinate = XY<unsigned int>(coord_x % view_size[X], coord_y % view_size[Y]);
-		for (int ii = 0; ii < images.size(); ii++)
-		{
-			valarray<unsigned int> base_coordinate_multiplier = indexToXY(ii);
-			valarray<unsigned int> destination = base_coordinate_multiplier * view_size + base_coordinate;
-			if (destination[X] == coord_x && destination[Y] == coord_y)
-				focused_crosshair.draw(buffer, destination[X], destination[Y]);
-			else
-				normal_crosshair.draw(buffer, destination[X], destination[Y]);
-		}
-	}
+	void draw_crosshairs(BITMAP * buffer, unsigned int coord_x, unsigned int coord_y);
 
 	valarray<int> getViewCoordinates() const override;
 
@@ -231,7 +203,6 @@ public:
 	~AllegroUI() 
 	{
 		clean();
-		allegro_exit();
 	}
 
 	void createBuffer()
@@ -303,10 +274,57 @@ private:
 };
 
 
+class Message
+{
+public:
+	std::string text;
+
+};
+
+
+class MessageRecord
+{
+public:
+	double time_to_expire;
+	double time_inserted;
+	bool operator < (const MessageRecord & rhs)
+	{
+		return time_inserted < rhs.time_inserted;
+	}
+	std::string getMessageText() const
+	{
+		return message->text;
+	}
+
+	Message * message;
+};
+
+
+class MessageService
+{
+public:
+	virtual ~MessageService();
+	void addMessage(Message * msg, double time_to_live);
+	void cleanOldMessages();
+	virtual void displayMessages() const = 0;
+protected:
+	set<MessageRecord *> messages;
+};
+
+
+class AllegroMessageService: public MessageService
+{
+public:
+	AllegroMessageService(BITMAP * screen_buffer):screen_buffer(screen_buffer) {}
+	void displayMessages() const override;
+private:
+	BITMAP * screen_buffer;
+};
+
+
 /// class Image_group represents the group of examined images
-/**
+/*
  * It takes care mainly about user input
- */
 class Image_group
 {
 public:
@@ -380,6 +398,7 @@ private:
 
 	BITMAP * Crosshair; ///< The crosshair mouse cursor
 };
+*/
 
 
 #endif /*PAIR_H_*/
