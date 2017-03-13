@@ -66,7 +66,7 @@ stereozoom2::stereozoom2(const char * arguments)
 
 	verbose = true;
 	start();
-	AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, 400, 300);
+	AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, 300, 400);
 	AllegroUI ui(stereotuple);
 	ui.createBuffer();
 	ILLoader loader;

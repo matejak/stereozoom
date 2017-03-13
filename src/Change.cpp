@@ -3,15 +3,27 @@
 #include "Change.h"
 
 
-void ChangeOffset::transformView(ViewWithRectangle * subject) const
+void ChangeDrag::transformView(ViewWithRectangle * subject) const
 {
 	subject->changePosition(shift);
+}
+
+
+void ChangeOffset::transformView(ViewWithRectangle * subject) const
+{
+	subject->changeOffset(shift);
 }
 
 
 void ChangeZoomViewCentered::transformView(ViewWithRectangle * subject) const
 {
 	subject->changeZoom(zoom_change, subject->getViewCenteredPivot());
+}
+
+
+void ChangeZoomViewGeneral::transformView(ViewWithRectangle * subject) const
+{
+	subject->changeZoom(zoom_change, subject->viewToBitmapCoord(position_in_view));
 }
 
 

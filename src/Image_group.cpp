@@ -22,6 +22,7 @@
  * 	Boston, MA  02110-1301, USA.
  */
 
+#include <cmath>
 #include "Image_group.h"
 
 
@@ -30,11 +31,11 @@ void AllegroImageGrid::LoadImageWhere(const char * filename, int x, int y, const
 	int image_index = xyToIndex(x, y);
 	AllegroImage * image = (AllegroImage *)images[image_index];
 	ViewWithRectangle * view = views[image_index];
-	if (image != NULL)
+	if (image != nullptr)
 	{
 		delete image;
 	}
-	if (view != NULL)
+	if (view != nullptr)
 	{
 		delete view;
 	}
@@ -400,6 +401,13 @@ void Image_group::Print_offset()
 }
 
 
+valarray<int> AllegroImageGrid::getViewCoordinates() const
+{
+	valarray<int> local_mouse_position = XY<int>(mouse_x, mouse_y) % XY<int, unsigned int>(view_size);
+	return local_mouse_position;
+}
+
+
 void AllegroUI::setSensitivities()
 {
 	sensitivities.values[OF_ZOOM][BY_KEYBOARD] = 1.2;
@@ -458,12 +466,8 @@ void AllegroUI::processMouseDrag()
 		get_mouse_mickeys(& dmouse_x, & dmouse_y);
 		if (dragging_now)
 		{
-			if (key_shifts & KB_SHIFT_FLAG)
-			{
-				boosting_input = true;
-			}
-			double base_sensitivity = sensitivities.get(OF_SHIFT, BY_MOUSE, boosting_input);
-			ChangeOffset change = ChangeOffset(- base_sensitivity * dmouse_x, - base_sensitivity * dmouse_y);
+			double base_sensitivity = sensitivities.get(OF_SHIFT, BY_MOUSE);
+			ChangeDrag change = ChangeDrag(- base_sensitivity * dmouse_x, - base_sensitivity * dmouse_y);
 			stereotuple.applyChangeToAll(& change);
 		}
 		// get_mouse_mickeys() will reset the counter, so we won't get garbage from it next time. 
@@ -481,14 +485,9 @@ void AllegroUI::processMouseZoom()
 	bool boosting_input = false;
 	if (mouse_z) //if change of zoom occured
 	{
-		if (key_shifts & KB_SHIFT_FLAG)
-		{
-			boosting_input = true;
-		}
-
 		// TODO: pass the mouse coords along, get the right transform to view coords, apply the transform on the view.
-		// ChangeZoom change = ChangeZoom(sensitivities.get(OF_ZOOM, BY_MOUSE, boosting_input), 0);
-		// stereotuple.applyChangeToAll(& change);
+		ChangeZoomViewGeneral change = ChangeZoomViewGeneral(pow(sensitivities.get(OF_ZOOM, BY_MOUSE), mouse_z), stereotuple.getViewCoordinates());
+		stereotuple.applyChangeToAll(& change);
 		// TODO: Print_zoom();
 	}
 	position_mouse_z(0); // just in order to detect another zoom change correctly
@@ -497,73 +496,73 @@ void AllegroUI::processMouseZoom()
 
 vector<int> AllegroUI::processUserInput(vector<int> keystrokes)
 {
-	Change * globalChange = NULL;
+	Change * global_change = nullptr;
+	Change * local_change = nullptr;
 	int key;
 	bool boosting_input = false;
 	vector<int> unprocessed_keystokes;
 	for (int ii = 0; ii < keystrokes.size(); ii ++)
 	{
 		key = keystrokes[ii];
-		if (key_shifts & KB_SHIFT_FLAG)
-		{
-			boosting_input = true;
-		}
 		switch (key)
 		{
 			case KEY_A:
-				globalChange = new ChangeOffset(- sensitivities.get(OF_SHIFT, BY_KEYBOARD, boosting_input), 0);
+				global_change = new ChangeOffset(- sensitivities.get(OF_SHIFT, BY_KEYBOARD), 0);
 				break;
 			case KEY_S:
-				globalChange = new ChangeOffset(0, sensitivities.get(OF_SHIFT, BY_KEYBOARD, boosting_input));
+				global_change = new ChangeOffset(0, sensitivities.get(OF_SHIFT, BY_KEYBOARD));
 				break;
 			case KEY_D:
-				globalChange = new ChangeOffset(sensitivities.get(OF_SHIFT, BY_KEYBOARD, boosting_input), 0);
+				global_change = new ChangeOffset(sensitivities.get(OF_SHIFT, BY_KEYBOARD), 0);
 				break;
 			case KEY_W:
-				globalChange = new ChangeOffset(0, - sensitivities.get(OF_SHIFT, BY_KEYBOARD, boosting_input));
+				global_change = new ChangeOffset(0, - sensitivities.get(OF_SHIFT, BY_KEYBOARD));
 				break;
 			case KEY_EQUALS:
-				globalChange = new ChangeZoomViewCentered(sensitivities.get(OF_ZOOM, BY_KEYBOARD, boosting_input));
+				global_change = new ChangeZoomViewCentered(sensitivities.get(OF_ZOOM, BY_KEYBOARD));
 				break;
 			case KEY_MINUS:
-				globalChange = new ChangeZoomViewCentered(1.0 / sensitivities.get(OF_ZOOM, BY_KEYBOARD, boosting_input));
+				global_change = new ChangeZoomViewCentered(1.0 / sensitivities.get(OF_ZOOM, BY_KEYBOARD));
 				break;
 			case KEY_8:
 			case KEY_ASTERISK:
-				globalChange = new ChangeSetViewToSeeEverything();
+				global_change = new ChangeSetViewToSeeEverything();
 				break;
 			case KEY_SLASH_PAD:
 			case KEY_SLASH:
-				globalChange = new ChangeSetViewToZoom(1.0);
+				global_change = new ChangeSetViewToZoom(1.0);
+				break;
+			case KEY_UP:
+				local_change = new ChangeOffset(0, sensitivities.get(OF_OFFSET, BY_KEYBOARD));
+				break;
+			case KEY_DOWN:
+				local_change = new ChangeOffset(0, - sensitivities.get(OF_OFFSET, BY_KEYBOARD));
+				break;
+			case KEY_LEFT:
+				local_change = new ChangeOffset(sensitivities.get(OF_OFFSET, BY_KEYBOARD), 0);
+				break;
+			case KEY_RIGHT:
+				local_change = new ChangeOffset(- sensitivities.get(OF_OFFSET, BY_KEYBOARD), 0);
 				break;
 			default:
 				unprocessed_keystokes.push_back(key);
 				break;
-				/*
-			case KEY_UP:
-				current_image_offset.y += shift_step;
-				break;
-			case KEY_DOWN:
-				current_image_offset.y -= shift_step;
-				break;
-			case KEY_LEFT:
-				current_image_offset.x += shift_step;
-				break;
-			case KEY_RIGHT:
-				current_image_offset.x -= shift_step;
-				break;
-				*/
 		}
-		if (globalChange != NULL)
+		if (global_change != nullptr)
 		{
-			stereotuple.applyChangeToAll(globalChange);
-			delete globalChange;
-			globalChange = NULL;
+			stereotuple.applyChangeToAll(global_change);
+			delete global_change;
+			global_change = nullptr;
+		}
+		if (local_change != nullptr)
+		{
+			stereotuple.applyChangeToCurrent(local_change);
+			delete local_change;
+			local_change = nullptr;
 		}
 	}
 	return unprocessed_keystokes;
 }
-
 
 
 void Crosshair::createNormal(unsigned int size)

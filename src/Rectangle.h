@@ -48,12 +48,11 @@ public:
 	}
 	valarray<double> getBitmapCenteredPivot() const
 	{
-		valarray<double> bmp_center = bitmap_size / 2.0;
-		return bmp_center;
+		return bitmap_size / 2.0;
 	}
 	valarray<double> getViewCenteredPivot() const
 	{
-		return upper_left_corner + current_size() / 2.0;
+		return viewToBitmapCoord(view_size / 2.0);
 	}
 
 	BlitData getBlitData() const
@@ -88,16 +87,24 @@ public:
 
 	void changePosition(valarray<double> pos_change)
 	{
-		valarray<double> new_position = upper_left_corner + pos_change;
+		valarray<double> new_position = upper_left_corner + pos_change / zoom;
+		setPosition(new_position);
+	}
+
+	void changeOffset(valarray<double> offset_change)
+	{
+		valarray<double> new_position = upper_left_corner + offset_change;
 		setPosition(new_position);
 	}
 
 	void setZoom(double new_zoom, valarray<double> pivot)
 	{
-		zoom = new_zoom;
+		if (verbose)
+			printf("Set new zoom %.2g -> %.2g with pivot (%.2g, %.2g)\n", zoom, new_zoom, pivot[X], pivot[Y]);
 		double zoom_ratio = new_zoom / zoom;
-		valarray<double> new_size = current_size() * zoom_ratio;
-		upper_left_corner = pivot - new_size / 2.0;
+		zoom = new_zoom;
+		valarray<double> old_pivot_positional_vector = pivot - upper_left_corner;
+		upper_left_corner = pivot - old_pivot_positional_vector / zoom_ratio;
 	}
 
 	void setPosition(valarray<double> pos_change)
@@ -105,11 +112,20 @@ public:
 		upper_left_corner = pos_change;
 	}
 
+	void centerPositionOverBitmap()
+	{
+		setPosition((bitmap_size - current_size()) / 2.0);
+	}
+
 	void setToJustSeeEverything()
 	{
+		centerPositionOverBitmap();
 		double highest_zoom_possible = (view_size / bitmap_size).min();
 		setZoom(highest_zoom_possible, getBitmapCenteredPivot());
 	}
+
+	valarray<double> viewToBitmapCoord(valarray<double> view_coord) const;
+	valarray<double> bitmapToViewCoord(valarray<double> bitmap_coord) const;
 private:
 	valarray<double> bitmap_size;
 	valarray<double> view_size;

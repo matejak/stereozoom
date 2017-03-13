@@ -20,7 +20,8 @@ enum sensitivity_device {BOOST, BY_KEYBOARD, BY_MOUSE, DEVICE_COUNT};
 class Sensitivity
 {
 public:
-	double get(sensitivity_subject of_what, sensitivity_device device, bool boosted)
+	Sensitivity(): boosted(false), values{{0}} {}
+	double get(sensitivity_subject of_what, sensitivity_device device)
 	{
 		double ret = values[int(of_what)][int(device)];
 		if (boosted)
@@ -30,7 +31,27 @@ public:
 		return ret;
 	}
 	// TODO: init with NaNs
-	double values[DEVICE_COUNT][SUBJECTS_COUNT] = {{0}};	
+	double values[DEVICE_COUNT][SUBJECTS_COUNT];	
+
+	virtual void setBoostedStatus() {}
+	bool boosted;
+};
+
+
+class AllegroSensitivity: public Sensitivity
+{
+public:
+	void setBoostedStatus() override
+	{
+		if (key_shifts & KB_SHIFT_FLAG)
+		{
+			boosted = true;
+		}
+		else
+		{
+			boosted = false;
+		}
+	}
 };
 
 
@@ -95,6 +116,11 @@ public:
 	{
 		return view_size * grid_shape;
 	}
+	void applyChangeToCurrent(Change * change)
+	{
+		valarray<unsigned int> current_view_xy = getCurrentViewCoords();
+		applyChangeTo(change, views[xyToIndex(current_view_xy[X], current_view_xy[Y])]);
+	}
 	void applyChangeToOne(Change * change, unsigned int x, unsigned int y)
 	{
 		applyChangeTo(change, views[xyToIndex(x, y)]);
@@ -104,7 +130,10 @@ public:
 		for (int ii = 0; ii < views.size(); ii++)
 			applyChangeTo(change, views[ii]);
 	}
+	virtual valarray<int> getViewCoordinates() const = 0;
+
 protected:
+	virtual valarray<unsigned int> getCurrentViewCoords() const = 0;
 	void applyChangeTo(Change * change, ViewWithRectangle * view)
 	{
 		change->transformView(view);
@@ -182,7 +211,13 @@ public:
 		}
 	}
 
+	valarray<int> getViewCoordinates() const override;
+
 private:
+	virtual valarray<unsigned int> getCurrentViewCoords() const
+	{
+		return XY<unsigned int>(mouse_x, mouse_y) / view_size;
+	}
 	Crosshair normal_crosshair;
 	Crosshair focused_crosshair;
 };
@@ -224,6 +259,7 @@ public:
 			draw();
 			rest(50);
 			
+			sensitivities.setBoostedStatus();
 			vector<int> keystrokes = pollForKeystrokes();
 			keystrokes = processUIControl(keystrokes);
 			keystrokes = processUserInput(keystrokes);
@@ -257,7 +293,7 @@ public:
 private:
 	void setSensitivities();
 
-	Sensitivity sensitivities;
+	AllegroSensitivity sensitivities;
 	BITMAP * screen_buffer;
 
 	AllegroImageGrid & stereotuple;

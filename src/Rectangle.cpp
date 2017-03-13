@@ -165,3 +165,15 @@ void Rectangle::D_offset(int offset [2])
 		Offset[i] += offset[i];
 	Check();
 }
+
+valarray<double> ViewWithRectangle::viewToBitmapCoord(valarray<double> view_coord) const
+{
+	valarray<double> view_ratio = view_coord / view_size;
+	return view_ratio * current_size() + upper_left_corner;
+}
+
+valarray<double> ViewWithRectangle::bitmapToViewCoord(valarray<double> bitmap_coord) const
+{
+	valarray<double> bitmap_ratio = (bitmap_coord - upper_left_corner) / current_size();
+	return bitmap_ratio * view_size;
+}
