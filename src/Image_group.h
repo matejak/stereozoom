@@ -19,6 +19,64 @@ enum sensitivity_subject {OF_ZOOM, OF_SHIFT, OF_OFFSET, SUBJECTS_COUNT};
 enum sensitivity_device {BOOST, BY_KEYBOARD, BY_MOUSE, DEVICE_COUNT};
 
 
+class Message
+{
+public:
+	Message(const char * text):text(text) {}
+	std::string text;
+
+};
+
+
+class MessageRecord
+{
+public:
+	MessageRecord(const char * text, double duration);
+	double time_to_expire;
+	time_t time_inserted;
+
+	double getRemainingSeconds()
+	{
+		return (time_inserted - time(NULL)) + time_to_expire;
+	}
+
+	bool operator < (const MessageRecord & rhs)
+	{
+		return time_inserted > rhs.time_inserted;
+	}
+
+	std::string getMessageText() const
+	{
+		return message->text;
+	}
+
+	Message * message;
+};
+
+
+class MessageService
+{
+public:
+	virtual ~MessageService();
+	void addMessage(const char * msg, double time_to_live);
+	void cleanOldMessages();
+	virtual void displayMessages() const = 0;
+	void purgeOldMessages();
+protected:
+	set<MessageRecord *> messages;
+};
+
+
+class AllegroMessageService: public MessageService
+{
+public:
+	AllegroMessageService(BITMAP ** screen_buffer_ptr):screen_buffer_ptr(screen_buffer_ptr) {}
+	void displayMessages() const override;
+private:
+	BITMAP ** screen_buffer_ptr;
+};
+
+
 class Sensitivity
 {
 public:
@@ -199,7 +257,7 @@ class AllegroUI
 {
 public:
 	AllegroUI(AllegroImageGrid & stereotuple):
-		sensitivities(), screen_buffer(0), stereotuple(stereotuple), dont_stop(true), dragging_now(false) {}
+		sensitivities(), screen_buffer(0), stereotuple(stereotuple), dont_stop(true), dragging_now(false), message_service(& screen_buffer) {}
 	~AllegroUI() 
 	{
 		clean();
@@ -219,6 +277,7 @@ public:
 			printf("Trying to set resolution: %dx%d, %d bpp\n", window_size_in_pixels[X], window_size_in_pixels[Y], get_color_depth());
 
 		screen_buffer = create_bitmap(window_size_in_pixels[X], window_size_in_pixels[Y]);
+		// TODO: Utilize the observer pattern here
 		stereotuple.gfxModeOn();
 	}
 
@@ -228,6 +287,7 @@ public:
 		while(dont_stop)
 		{
 			draw();
+			message_service.purgeOldMessages();
 			rest(50);
 			
 			sensitivities.setBoostedStatus();
@@ -246,6 +306,8 @@ public:
 	void processMouseDrag();
 	void processMouseZoom();
 
+	void printHelp();
+
 	void clean()
 	{
 		if (screen_buffer)
@@ -259,6 +321,7 @@ public:
 		clear_to_color(screen_buffer, makecol(0, 0, 0));
 		stereotuple.blit(screen_buffer);
 		stereotuple.draw_crosshairs(screen_buffer, mouse_x, mouse_y);
+		message_service.displayMessages();
 		blit(screen_buffer, screen, 0, 0, 0, 0, screen_buffer->w, screen_buffer->h);
 	}
 private:
@@ -271,54 +334,9 @@ private:
 	bool dont_stop;
 
 	bool dragging_now;
-};
 
+	AllegroMessageService message_service;
 
-class Message
-{
-public:
-	std::string text;
-
-};
-
-
-class MessageRecord
-{
-public:
-	double time_to_expire;
-	double time_inserted;
-	bool operator < (const MessageRecord & rhs)
-	{
-		return time_inserted < rhs.time_inserted;
-	}
-	std::string getMessageText() const
-	{
-		return message->text;
-	}
-
-	Message * message;
-};
-
-
-class MessageService
-{
-public:
-	virtual ~MessageService();
-	void addMessage(Message * msg, double time_to_live);
-	void cleanOldMessages();
-	virtual void displayMessages() const = 0;
-protected:
-	set<MessageRecord *> messages;
-};
-
-
-class AllegroMessageService: public MessageService
-{
-public:
-	AllegroMessageService(BITMAP * screen_buffer):screen_buffer(screen_buffer) {}
-	void displayMessages() const override;
-private:
-	BITMAP * screen_buffer;
 };
 
 

@@ -453,7 +453,7 @@ vector<int> AllegroUI::processUIControl(vector<int> keystrokes)
 		switch (key)
 		{
 			case KEY_H:
-				// Print_help();
+				printHelp();
 				break;
 			case KEY_ESC:
 			case KEY_Q:
@@ -513,6 +513,14 @@ void AllegroUI::processMouseZoom()
 		// TODO: Print_zoom();
 	}
 	position_mouse_z(0); // just in order to detect another zoom change correctly
+}
+
+
+void AllegroUI::printHelp()
+{
+	const char * message = "STEREOZOOM HELP\n\nUse your mouse wheel to zoom in and out.\nand then move it with the mouse.\n\
+Hold SHIFT to speed moving and zooming up.\nPress / to the 1:1 ratio and * to fit to the screen.\nFinally, press ESC or q to quit.";
+	message_service.addMessage(message, 10);
 }
 
 
@@ -600,6 +608,19 @@ void Crosshair::createNormal(unsigned int size)
 }
 
 
+double time_remaining_to_alpha(double ttl)
+{
+	double result = MIN(ttl / 3.0, 1.0);
+	return result * 0.8 + 0.2;
+}
+
+
+MessageRecord::MessageRecord(const char * text, double duration):
+	time_to_expire(duration), time_inserted(time(NULL)), message(0)
+{
+	message = new Message(text);
+}
+
 
 MessageService::~MessageService()
 {
@@ -611,11 +632,33 @@ MessageService::~MessageService()
 }
 
 
+void MessageService::addMessage(const char * msg, double time_to_live)
+{
+	MessageRecord * message = new MessageRecord(msg, time_to_live);
+	messages.insert(message);
+}
+
+
+void MessageService::purgeOldMessages()
+{
+	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
+	{
+		if ((* it)->getRemainingSeconds() <= 0)
+		{
+			messages.erase(it);
+			delete (* it);
+		}
+	}
+}
+
+
 void AllegroMessageService::displayMessages() const
 {
 	vector<string> rows;
 	string temp, text;
-	unsigned int max_row_len = 0, num_rows = 0;
+	int color;
+	unsigned int max_row_len = 0, current_row_height = 0, previous_row_end = 0, row_break = 5;
+	double relative_alpha = 0;
 	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
 	{
 		text = (* it)->getMessageText();
@@ -624,7 +667,6 @@ void AllegroMessageService::displayMessages() const
 			if (text[i] == '\n' || text[i] == '\0')
 			{// another row finished!
 				rows.push_back(temp);
-				num_rows++;
 				max_row_len = MAX<int>(max_row_len, current_length);
 				// now just setting back to original values
 				current_length = 0;
@@ -634,9 +676,22 @@ void AllegroMessageService::displayMessages() const
 			temp += text[i];	// quite important, filling the string that will be put into the vector later
 		}
 		text += "\n";
+		relative_alpha = time_remaining_to_alpha((* it)->getRemainingSeconds());
+		color = makeacol(64, 64, 64, int(relative_alpha * 96));
+		current_row_height = rows.size() * text_height(font) + 10;
+
+		// TODO: This should be part of a yet-to-be-introduced AllegroMessageRecord
+		BITMAP * notice = create_bitmap(max_row_len * text_length(font, "@") + 10, current_row_height);
+		clear_to_color(notice, color);
+		for (unsigned int i = 0; i < rows.size(); i++)
+		{
+			color = makeacol32(255,255,255, int(relative_alpha * 192));
+			textout_ex(notice, font, rows[i].c_str(), 5, i * text_height(font) + 5, color, -1);
+		}
+		previous_row_end += row_break;
+		draw_trans_sprite(* screen_buffer_ptr, notice, row_break, previous_row_end);
+		previous_row_end += current_row_height;
+		destroy_bitmap(notice);
+		rows.clear();
 	}
-	int color = makeacol(64, 64, 64, 96);
-	rectfill(screen_buffer, 0, 0, max_row_len * text_length(font, "@") + 10, num_rows * text_height(font) + 10, color);
-	for (unsigned int i = 0; i < rows.size(); i++)
-		textout_ex(screen_buffer, font, rows[i].c_str(), 5, i * text_height(font) + 5, makeacol32(255,255,255,192), -1);
 }
