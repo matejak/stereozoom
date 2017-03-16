@@ -9,6 +9,8 @@ using std::set;
 using std::string;
 #include <stdexcept>
 using std::runtime_error;
+#include <chrono>
+using namespace std::chrono;
 
 #include "stereozoom2.h"
 #include "Image.h"
@@ -33,16 +35,12 @@ class MessageRecord
 public:
 	MessageRecord(const char * text, double duration);
 	double time_to_expire;
-	time_t time_inserted;
+	time_point<steady_clock> time_inserted;
 
 	double getRemainingSeconds()
 	{
-		return (time_inserted - time(NULL)) + time_to_expire;
-	}
-
-	bool operator < (const MessageRecord & rhs)
-	{
-		return time_inserted > rhs.time_inserted;
+		double ret = (duration_cast<milliseconds>(time_inserted.time_since_epoch() - steady_clock::now().time_since_epoch())).count() / 1000.0 + time_to_expire;
+		return ret;
 	}
 
 	std::string getMessageText() const
@@ -51,6 +49,16 @@ public:
 	}
 
 	Message * message;
+};
+
+
+
+struct APtrComp
+{
+	bool operator () (const MessageRecord * lhs, const MessageRecord * rhs) const
+	{
+		return lhs->time_inserted < rhs->time_inserted;
+	}
 };
 
 
@@ -63,7 +71,7 @@ public:
 	virtual void displayMessages() const = 0;
 	void purgeOldMessages();
 protected:
-	set<MessageRecord *> messages;
+	set<MessageRecord *, APtrComp> messages;
 };
 
 

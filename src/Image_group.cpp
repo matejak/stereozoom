@@ -616,7 +616,7 @@ double time_remaining_to_alpha(double ttl)
 
 
 MessageRecord::MessageRecord(const char * text, double duration):
-	time_to_expire(duration), time_inserted(time(NULL)), message(0)
+	time_to_expire(duration), time_inserted(steady_clock::now()), message(0)
 {
 	message = new Message(text);
 }
