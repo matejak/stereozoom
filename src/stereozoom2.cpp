@@ -70,7 +70,6 @@ stereozoom2::stereozoom2(const char * arguments)
 		return;
 	}
 
-	verbose = true;
 	start();
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
 		AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);

@@ -34,6 +34,11 @@ class MessageRecord
 {
 public:
 	MessageRecord(const char * text, double duration);
+	~MessageRecord() 
+	{
+		delete message;
+		message = nullptr;
+	}
 	double time_to_expire;
 	time_point<steady_clock> time_inserted;
 
@@ -67,17 +72,35 @@ class MessageService
 public:
 	virtual ~MessageService();
 	void addMessage(const char * msg, double time_to_live);
+	MessageRecord * addRefreshableMessage(const char * msg, double time_to_live, MessageRecord * previous_message=nullptr);
 	void cleanOldMessages();
 	virtual void displayMessages() const = 0;
 	void purgeOldMessages();
 protected:
 	set<MessageRecord *, APtrComp> messages;
+private:
+	MessageRecord * _addMessage(const char * msg, double time_to_live);
 };
 
 
-class AllegroMessageService: public MessageService
+class SpecializedMessageService: public MessageService
 {
 public:
+	virtual ~SpecializedMessageService() {}
+	SpecializedMessageService():MessageService(), offset_message(nullptr) {}
+	void showOffsetMessage(const char * offset)
+	{
+		offset_message = addRefreshableMessage(offset, 4, offset_message);
+	}
+private:
+	MessageRecord * offset_message;
+};
+
+
+class AllegroMessageService: public SpecializedMessageService
+{
+public:
+	virtual ~AllegroMessageService() {}
 	AllegroMessageService(BITMAP ** screen_buffer_ptr):screen_buffer_ptr(screen_buffer_ptr) {}
 	void displayMessages() const override;
 private:
@@ -239,7 +262,7 @@ public:
 
 	void gfxModeOn()
 	{
-		int crosshair_dimension = int(view_size.min() / 5.0);
+		int crosshair_dimension = int(60 * sqrt(view_size.min() / 300.0));
 		normal_crosshair.createNormal(crosshair_dimension);
 		focused_crosshair.createFocused(crosshair_dimension);
 	}
@@ -344,7 +367,6 @@ private:
 	bool dragging_now;
 
 	AllegroMessageService message_service;
-
 };
 
 #endif /*PAIR_H_*/

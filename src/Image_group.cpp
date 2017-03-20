@@ -229,6 +229,7 @@ vector<int> AllegroUI::processUserInput(vector<int> keystrokes)
 				break;
 			case KEY_UP:
 				local_change = new ChangeOffset(0, sensitivities.get(OF_OFFSET, BY_KEYBOARD));
+				message_service.showOffsetMessage("Changed offset");
 				break;
 			case KEY_DOWN:
 				local_change = new ChangeOffset(0, - sensitivities.get(OF_OFFSET, BY_KEYBOARD));
@@ -275,7 +276,7 @@ void Crosshair::createNormal(unsigned int size)
 
 double time_remaining_to_alpha(double ttl)
 {
-	double result = MIN(ttl / 3.0, 1.0);
+	double result = MIN(ttl / 2.0, 1.0);
 	return result * 0.8 + 0.2;
 }
 
@@ -289,27 +290,48 @@ MessageRecord::MessageRecord(const char * text, double duration):
 
 MessageService::~MessageService()
 {
-	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
+	for (set<MessageRecord *, APtrComp>::iterator it = messages.begin(); it != messages.end(); it++)
 	{
-		delete * it;
 		messages.erase(it);
+		delete * it;
 	}
+}
+
+MessageRecord * MessageService::addRefreshableMessage(const char * msg, double time_to_live, MessageRecord * previous_message)
+{
+	std::set<MessageRecord *, APtrComp>::iterator it = messages.find(previous_message);
+	if (it != messages.end())
+	{
+		// we need to erase and insert in order to ensure proper set ordering with new insert time
+		messages.erase(it);
+		delete * it;
+	}
+	MessageRecord * ret = _addMessage(msg, time_to_live);
+	return ret;
 }
 
 
 void MessageService::addMessage(const char * msg, double time_to_live)
 {
+	_addMessage(msg, time_to_live);
+}
+
+
+MessageRecord * MessageService::_addMessage(const char * msg, double time_to_live)
+{
 	MessageRecord * message = new MessageRecord(msg, time_to_live);
 	messages.insert(message);
+	return message;
 }
 
 
 void MessageService::purgeOldMessages()
 {
-	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
+	for (set<MessageRecord *, APtrComp>::iterator it = messages.begin(); it != messages.end(); it++)
 	{
 		if ((* it)->getRemainingSeconds() <= 0)
 		{
+			// printf("Erasing %s\n", (*it)->message->text.c_str());
 			messages.erase(it);
 			delete (* it);
 		}
