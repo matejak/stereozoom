@@ -107,7 +107,7 @@ class Main_window : public Main_frame
 {
 public:
 	Main_window();
-	virtual ~Main_window() 
+	virtual ~Main_window()
 	{
 		clearGridSizer();
 		clearAllImagePanels();
@@ -126,24 +126,37 @@ public:
 	/// Terminate gstereozoom2
 	virtual void Exit_clicked( wxCommandEvent& event )
 	{ this->Close(); }
+	virtual void setPresetSmall( wxCommandEvent& event )
+	{
+		setAreaSize(200, 300);
+		event.Skip();
+	}
+	virtual void setPresetBig( wxCommandEvent& event )
+	{
+		setAreaSize(500, 600);
+		event.Skip();
+	}
 private:
+	void setAreaSize(int width, int height);
 	void createMissingImagePanels();
-	void resizeSizer() {}
 	void clearAllImagePanels();
+	void setupGridSizer();
+	void populateGridSizer();
 	void clearGridSizer()
 	{
 		if (grid_sizer != nullptr)
 		{
 			grid_sizer->Clear();
+			main_sizer->Detach(grid_sizer);
+			Layout();
 			delete grid_sizer;
 			grid_sizer = nullptr;
 		}
 	}
-	wxGridSizer Grid_images;	///< Pointer of the image panels sizer
-	valarray<unsigned int> images_count;	///< How are the dimensions of the image preview matrix
+	valarray<int> images_count;	///< How are the dimensions of the image preview matrix
 
 	wxSizer * main_sizer;
-	wxSizer * grid_sizer;
+	wxGridSizer * grid_sizer;
 	unordered_map<pair<unsigned int, unsigned int>, Image_panel *, pairhash> known_panels;
 };
 

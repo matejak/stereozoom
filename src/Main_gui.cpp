@@ -43,19 +43,15 @@ bool MyWxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& 
 }
 
 Main_window::Main_window():
-	Main_frame(NULL, -1, wxT("gStereozoom^2")), images_count(XY<unsigned int>(0, 0)), main_sizer(this->GetSizer()), grid_sizer(nullptr)
+	Main_frame(NULL, -1, wxT("wxStereozoom")), images_count(XY<int>(0, 0)), main_sizer(this->GetSizer()), grid_sizer(nullptr)
 {
-	Grid_images.SetFlexibleDirection(wxBOTH);
 	Regroup_panels();
 }
 
 
-void Main_window::setupSizer()
+void Main_window::setupGridSizer()
 {
-	auto new_grid_sizer = new wxGridSizer(images_count[X], images_count[Y]);
-	populateGridSizer(new_grid_sizer);
-	clearGridSizer();
-	grid_sizer = new_grid_sizer;
+	grid_sizer = new wxGridSizer(images_count[Y], images_count[X], 0, 0);
 	main_sizer->Insert(0, grid_sizer, 1, wxEXPAND);
 }
 
@@ -63,7 +59,7 @@ void Main_window::setupSizer()
 void Main_window::clearAllImagePanels()
 {
 	wxWindow * current_panel = nullptr;
-	auto it = known_panels.begin()
+	auto it = known_panels.begin();
 	while (it != known_panels.end())
 	{
 		current_panel = it->second;
@@ -73,15 +69,18 @@ void Main_window::clearAllImagePanels()
 }
 
 
-void Main_window::populateGridSizer(wxSizer * sizer)
+void Main_window::populateGridSizer()
 {
-	createMissingImagePanels()
+	createMissingImagePanels();
+
 	for (unsigned int i = 0; i < images_count[X]; i++)
 	{
 		for (unsigned int j = 0; j < images_count[Y]; j++)
 		{
-			auto position = std::make_pair(i, j)
-			sizer->Add(known_panels[position]);
+			auto position = std::make_pair(i, j);
+			auto panel = known_panels[position];
+			panel->Reparent(this);
+			grid_sizer->Add(panel, 1, wxEXPAND);
 		}
 	}
 }
@@ -89,72 +88,25 @@ void Main_window::populateGridSizer(wxSizer * sizer)
 
 void Main_window::Regroup_panels()
 {
-	int spin_x = Spin_matrix_w->GetValue(),
-		spin_y = Spin_matrix_h->GetValue();
-	const unsigned int old_size[] = { images_count[X], images_count[Y] };
-	unsigned int current_size[Z];
-	copy_array<unsigned int, Z>(old_size, current_size);
-	const int new_size[] = { spin_x, spin_y };
-	unsigned int point[Z];
-	// this is needed in order to make smart vectorized stuff
-	void (wxFlexGridSizer::* add[Z]) (size_t, int) = { & wxFlexGridSizer::AddGrowableCol, & wxFlexGridSizer::AddGrowableRow};
-	void (wxFlexGridSizer::* remove[Z]) (size_t) = { & wxFlexGridSizer::RemoveGrowableCol, & wxFlexGridSizer::RemoveGrowableRow};
-
-	wxSizerFlags flags(1);
-	flags.Expand();
-	for (int i = 0; i <= Y; i++)
+	clearGridSizer();
+	for (auto && panel: known_panels)
 	{
-		int other_coord = (i + 1) % Z;
-		int diff = new_size[i] - old_size[i];
-		if (diff > 0)	//something has been added
-		{
-			for (int j = 0; j < diff; j++)
-			{
-				current_size[i] += 1;
-				copy_array<unsigned int, Z>(current_size, point);
-				point[i]--; // no buffer overflow, please
-				for (int k = 0; k < current_size[other_coord]; k++)
-				{// Now adding a row/column. 'k' goes through "the other than i" coord
-					point[other_coord] = k;
-					wxGBPosition pos(point[Y], point[X]);
-
-					Image_panel * image = new Image_panel(this, point[X], point[Y]);
-					Grid_images.Add(image, pos, wxDefaultSpan, wxEXPAND);	//and to the sizer
-				}//end for (int k = 0; k < current_size[(i + 1) % 2]; k++)
-				(Grid_images.*add[i])(point[i], 0);
-			}//endfor (j = 0; j < diff; j++)
-		}// endif(diff > 0)
-		else
-		{// have to remove some stuff
-			diff = - diff;
-			for (int j = 0; j < diff; j++)
-			{
-				current_size[i] -= 1;
-				copy_array<unsigned int, Z>(current_size, point);
-				//point[i]--; // we get rid of somethging, so don't uncomment this!
-				for (int k = 0; k < current_size[other_coord]; k++)
-				{// Now adding a row/column. 'k' goes through "the other than i" coord
-					point[other_coord] = k;
-					wxGBPosition pos(point[Y], point[X]);
-
-					wxWindow * panel = Grid_images.FindItemAtPosition(pos)->GetWindow();
-					Grid_images.Detach(panel);
-					panel->Destroy();
-				}//end for (int k = 0; k < current_size[(i + 1) % 2]; k++)
-				(Grid_images.*remove[i])(point[i]);
-			}//endfor (j = 0; j < diff; j++)
-		}// endelse(diff > 0)
+		panel.second->Reparent(nullptr);
 	}
+	images_count[X] = Spin_matrix_w->GetValue(),
+	images_count[Y] = Spin_matrix_h->GetValue(),
+	setupGridSizer();
+	populateGridSizer();
+	Fit();
+	main_sizer->RecalcSizes();
+	main_sizer->Layout();
+}
 
-	Grid_images.SetCols(spin_x);
-	Grid_images.SetRows(spin_y);
 
-	images_count[X] = spin_x;
-	images_count[Y] = spin_y;
-
-	//Grid_images->Layout();
-	this->Fit();
-	this->GetSizer()->RecalcSizes();
+void Main_window::setAreaSize(int width, int height)
+{
+	Spin_imgres_w->SetValue(width);
+	Spin_imgres_h->SetValue(height);
 }
 
 
@@ -183,12 +135,12 @@ void Main_window::Start_clicked( wxCommandEvent& event )
 	Image_panel * impanel = 0;
 	for (int i = 0; i < Spin_matrix_w->GetValue() * Spin_matrix_h->GetValue(); i++)
 	{
-		impanel = (Image_panel *)(Grid_images.GetItem(i)->GetWindow());
+		impanel = (Image_panel *)(grid_sizer->GetItem(i)->GetWindow());
 		if (impanel->Check_use->GetValue() == false)
 			command << "-s\n1\n";
 		else
 		{
-			impanel = (Image_panel *)(Grid_images.GetItem(i)->GetWindow());
+			impanel = (Image_panel *)(grid_sizer->GetItem(i)->GetWindow());
 			command << "-f\n" << impanel->Get_filename().mb_str() << "\n";
 		}//endelse(impanel->Check_use->GetValue() == false)
 	}

@@ -72,7 +72,7 @@ AS_IF([test "x$have_allegro" != "xyes"],
 
 # If the user isn't against it, try to use wxwidgets, and ...
 AS_IF([test "x$enable_gui" != "xno"], 
-      [AM_PATH_WXCONFIG(2.8.0, [HAVE_WXWIDGETS=1]) ])
+      [AM_PATH_WXCONFIG(3.0.0, [HAVE_WXWIDGETS=1]) ])
 
 # Define the symbol so that Allegro drops the "magic main" stuff and the user is reported on how the attempt to build GUI has ended
 AS_IF([test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" != "x1"], 
