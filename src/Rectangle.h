@@ -2,7 +2,7 @@
 #define RECTANGLE_H_
 
 #include <cmath>
-#include "stereozoom2.h"
+#include "stereozoom.h"
 #include <allegro.h>
 
 

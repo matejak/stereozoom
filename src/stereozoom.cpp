@@ -1,8 +1,8 @@
 /*
- * stereozoom2.cpp
+ * stereozoom.cpp
  * Copyright (C) Matěj Týč 2007-2017 <matej.tyc@gmail.com>
  *
- * stereozoom2.cpp is is part of stereozoom2
+ * stereozoom.cpp is is part of stereozoom
  *
  * This program is free software;
  * You may redistribute it and/or modify it under the terms of the
@@ -10,19 +10,19 @@
  * Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
- * stereozoom2 is distributed in the hope that it will be useful,
+ * stereozoom is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with stereozoom2.  If not, write to:
+ * along with stereozoom.  If not, write to:
  * 	The Free Software Foundation, Inc.,
  * 	51 Franklin Street, Fifth Floor
  * 	Boston, MA  02110-1301, USA.
  */
 
-#include "stereozoom2_internal.h"
+#include "stereozoom_internal.h"
 
 #include <cstdlib>
 #include "Image_group.h"
@@ -45,7 +45,7 @@ void finish()
 }
 
 
-stereozoom2::stereozoom2(const char * arguments)
+stereozoom::stereozoom(const char * arguments)
 {
 	string args = arguments;	//not to destroy the passed string (that is moreover const)
 	//some init
@@ -84,7 +84,7 @@ stereozoom2::stereozoom2(const char * arguments)
 }
 
 
-int stereozoom2::Parse_args(const char * input)
+int stereozoom::Parse_args(const char * input)
 {
 	if (input[0] == '-')
 	{//some argument passed
@@ -236,7 +236,7 @@ int stereozoom2::Parse_args(const char * input)
 /**
  * If the Matrix_size[i] == 0, the matrix is not effective...
  */
-void stereozoom2::Apply_matrix()
+void stereozoom::Apply_matrix()
 {
 	if (Grow_mode != GROW_COLS && Matrix_size[0] > 0)	// leave this alone, we have also enum GROW_DEFAULT!!!
 	{

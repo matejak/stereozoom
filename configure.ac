@@ -2,16 +2,16 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([STEREOZOOM2], 0.9, [matej.tyc@google.com]) 
+AC_INIT([STEREOZOOM], 0.91, [matej.tyc@google.com]) 
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([-Wall foreign subdir-objects])
-AC_CONFIG_SRCDIR([src/stereozoom2.h])
+AC_CONFIG_SRCDIR([src/stereozoom.h])
 AC_CONFIG_HEADER([src/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 # Because of the gstz icon
 AC_SUBST([DATA_SUBDIR], 
-	 [stereozoom2])
+	 [stereozoom])
 
 # Checks for programs
 AC_PROG_CXX

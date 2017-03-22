@@ -102,7 +102,7 @@ class Dialog_about : public wxDialog
 	
 	public:
 		
-		Dialog_about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About stereozoom2"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE ); 
+		Dialog_about( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("About stereozoom"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE ); 
 		~Dialog_about();
 	
 };

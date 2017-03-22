@@ -2,14 +2,14 @@
 #define MAIN_GUI_H_
 
 /*
- * This file is part of stereozoom2.
+ * This file is part of stereozoom.
  *
- * stereozoom2 is free software; you can redistribute it and/or modify
+ * stereozoom is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * any later version.
  *
- * stereozoom2 is distributed in the hope that it will be useful,
+ * stereozoom is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -102,7 +102,7 @@ private:
 	wxFileDropTarget * Dragndrop_target;	///< The panel will be a target of drag and drop...
 };
 
-/// This class holds general stereozoom2 stuff and a matrix of Image_panel
+/// This class holds general stereozoom stuff and a matrix of Image_panel
 class Main_window : public Main_frame
 {
 public:
@@ -123,7 +123,7 @@ public:
 	virtual void Start_clicked( wxCommandEvent& event );
 	/// The About button has been pressed, display the about frame
 	virtual void About_clicked( wxCommandEvent& event );
-	/// Terminate gstereozoom2
+	/// Terminate gstereozoom
 	virtual void Exit_clicked( wxCommandEvent& event )
 	{ this->Close(); }
 	virtual void setPresetSmall( wxCommandEvent& event )

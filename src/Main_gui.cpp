@@ -2,7 +2,7 @@
  * Main_gui.cpp
  * Copyright (C) Matěj Týč 2007-2017 <matej.tyc@gmail.com>
  *
- * Main_gui.cpp is is part of stereozoom2
+ * Main_gui.cpp is is part of stereozoom
  *
  * This program is free software;
  * You may redistribute it and/or modify it under the terms of the
@@ -10,13 +10,13 @@
  * Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
- * stereozoom2 is distributed in the hope that it will be useful,
+ * stereozoom is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with stereozoom2.  If not, write to:
+ * along with stereozoom.  If not, write to:
  * 	The Free Software Foundation, Inc.,
  * 	51 Franklin Street, Fifth Floor
  * 	Boston, MA  02110-1301, USA.
@@ -144,7 +144,7 @@ void Main_window::Start_clicked( wxCommandEvent& event )
 			command << "-f\n" << impanel->Get_filename().mb_str() << "\n";
 		}//endelse(impanel->Check_use->GetValue() == false)
 	}
-	// check whether the stereozoom2 window is going to fit in the desktop
+	// check whether the stereozoom window is going to fit in the desktop
 	int wres, hres;
 	wxDisplaySize(& wres, & hres);
 	if (Spin_matrix_w->GetValue() * Spin_imgres_w->GetValue() >= wres ||
@@ -159,7 +159,7 @@ void Main_window::Start_clicked( wxCommandEvent& event )
 	//Update_timer.Start(200);
 
 	// wxThread stereozoom_thread(wxTHREAD_JOINABLE );
-	stereozoom2(command.str().c_str());
+	stereozoom(command.str().c_str());
 
 	//Update_timer.Stop();
 
@@ -273,5 +273,5 @@ About_window::About_window(wxWindow * parent):
 	Dialog_about(parent, -1)
 {
 	//load the logo that has to be installed somewhere...
-	Bitmap_icon->SetBitmap( wxBitmap(wxT(DATADIR(logo_stereozoom2.png)), wxBITMAP_TYPE_PNG));
+	Bitmap_icon->SetBitmap( wxBitmap(wxT(DATADIR(logo_stereozoom.png)), wxBITMAP_TYPE_PNG));
 }

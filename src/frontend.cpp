@@ -2,7 +2,7 @@
  * frontend.cpp
  * Copyright (C) Matěj Týč 2007-2017 <matej.tyc@gmail.com>
  *
- * frontend.cpp is is part of stereozoom2
+ * frontend.cpp is is part of stereozoom
  *
  * This program is free software;
  * You may redistribute it and/or modify it under the terms of the
@@ -10,13 +10,13 @@
  * Foundation; either version 2 of the License, or (at your option)
  * any later version.
  *
- * stereozoom2 is distributed in the hope that it will be useful,
+ * stereozoom is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with stereozoom2.  If not, write to:
+ * along with stereozoom.  If not, write to:
  * 	The Free Software Foundation, Inc.,
  * 	51 Franklin Street, Fifth Floor
  * 	Boston, MA  02110-1301, USA.
@@ -24,20 +24,20 @@
 
 
 
-/**\mainpage stereozoom2
+/**\mainpage stereozoom
  * The viewer of stereo pairs
  * \section req_sec Requirements:
  * 		- installed Allegro 4.2 runtime (liballegro4.2)
  * 		- installed devIL 1.6.7(or something like that) runtime (libdevil1c2)
  * 		- enough RAM :-)
  * \section usage_sec Usage:
- * 	stereozoom2 is a command-line invoked multiplatform viewer of images originally created with intention
+ * 	stereozoom is a command-line invoked multiplatform viewer of images originally created with intention
  * to easily see and align stereo pictures (images taken by a stereo microscope). Now you can compare an arbitrary number of
  * pictures (providing you have enough memory)
  *
  * The application accepts these parameters:
  *
- * stereozoom2 [-a \<res_x\>x\<res_y\>] \<filenames with format specifiers\>
+ * stereozoom [-a \<res_x\>x\<res_y\>] \<filenames with format specifiers\>
  *
  * The format specifiers look like that:
  *
@@ -65,10 +65,10 @@
  *
  * 	-p \<pos_x\>,\<pos_y\>
  * 		'p' stands for 'position'. You can reset  the  position  before specifying a filename. This can be particulary useful if you use
- *		stereozoom2 as a library.
+ *		stereozoom as a library.
  *
  * Example:
- * 	stereozoom2 -r 200x250 -m 4,3 -r shots*.jpg -r average.jpg -s 2 variance.jpg
+ * 	stereozoom -r 200x250 -m 4,3 -r shots*.jpg -r average.jpg -s 2 variance.jpg
  *
  * You are going to use this syntax when displaying some images in a matrix (you don't have to care how many of them are)
  * and then displaying the results of processing in the next row
@@ -79,16 +79,16 @@
  *  Use mouse dragging for moving across the image plane, wheel for zooming and keyboard arrows for aligning. Have fun!
  */
 
-#include "stereozoom2_internal.h"
+#include "stereozoom_internal.h"
 #include <allegro.h>
-#include "stereozoom2.h"
+#include "stereozoom.h"
 
 int main(int argc, char * argv [])
 {
 	std::string arguments("");
 	for(int i = 1; i < argc; i++)	// now let's stack the arguments back like they were on the command line :-)
 		arguments += (std::string)argv[i] + "\n";
-	stereozoom2 session(arguments.c_str());
+	stereozoom session(arguments.c_str());
 	return 0;
 }
 END_OF_MAIN()

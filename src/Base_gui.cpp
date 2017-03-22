@@ -96,7 +96,7 @@ Main_frame::Main_frame( wxWindow* parent, wxWindowID id, const wxString& title, 
 	
 	Button_start = new wxButton( this, ID_BUTTON_START, wxT("Start"), wxDefaultPosition, wxDefaultSize, 0 );
 	Button_start->SetBackgroundColour( wxColour( 52, 197, 63 ) );
-	Button_start->SetToolTip( wxT("launch stereozoom2, the tool to examine selected images") );
+	Button_start->SetToolTip( wxT("launch stereozoom, the tool to examine selected images") );
 	
 	bSizer2->Add( Button_start, 1, wxALIGN_CENTER_VERTICAL|wxALIGN_LEFT|wxALL, 5 );
 	
@@ -138,7 +138,7 @@ Dialog_about::Dialog_about( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxBoxSizer* Sizer_1;
 	Sizer_1 = new wxBoxSizer( wxVERTICAL );
 	
-	Text_title_1 = new wxStaticText( this, wxID_ANY, wxT("stereozoom2"), wxDefaultPosition, wxDefaultSize, 0 );
+	Text_title_1 = new wxStaticText( this, wxID_ANY, wxT("stereozoom"), wxDefaultPosition, wxDefaultSize, 0 );
 	Text_title_1->Wrap( -1 );
 	Text_title_1->SetFont( wxFont( 16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
 	
@@ -166,7 +166,7 @@ Dialog_about::Dialog_about( wxWindow* parent, wxWindowID id, const wxString& tit
 	
 	Sizer_1->Add( 0, 5, 0, wxEXPAND, 5 );
 	
-	link_stereozoom = new wxHyperlinkCtrl( this, wxID_ANY, wxT("stereozoom2.sf.net"), wxT("http://stereozoom2.sourceforge.net"), wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE );
+	link_stereozoom = new wxHyperlinkCtrl( this, wxID_ANY, wxT("stereozoom.sf.net"), wxT("http://stereozoom.sourceforge.net"), wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE );
 	Sizer_1->Add( link_stereozoom, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
 	
 	

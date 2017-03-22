@@ -1,14 +1,14 @@
 NUL =
 
-bin_PROGRAMS = stereozoom2
+bin_PROGRAMS = stereozoom
 
 if WANT_GUI
-bin_PROGRAMS += gstereozoom2
+bin_PROGRAMS += wxstereozoom
 endif
 
-lib_LTLIBRARIES = libstereozoom2.la
+lib_LTLIBRARIES = libstereozoom.la
 
-libstereozoom2_la_SOURCES = \
+libstereozoom_la_SOURCES = \
 	src/Change.h \
 	src/Change.cpp \
 	src/Image_group.h \
@@ -17,9 +17,9 @@ libstereozoom2_la_SOURCES = \
 	src/Rectangle.cpp \
 	src/Image.h \
 	src/Image.cpp \
-	src/stereozoom2.h \
-	src/stereozoom2.cpp \
-	src/stereozoom2_internal.h \
+	src/stereozoom.h \
+	src/stereozoom.cpp \
+	src/stereozoom_internal.h \
 	$(NUL)
 
 include_HEADERS = \
@@ -27,26 +27,26 @@ include_HEADERS = \
 	src/Image_group.h \
 	src/Rectangle.h \
 	src/Image.h \
-	src/stereozoom2.h \
+	src/stereozoom.h \
 	$(NUL)
 
-libstereozoom2_la_LIBADD = $(allegro_LIBS)
+libstereozoom_la_LIBADD = $(allegro_LIBS)
 
-stereozoom2_SOURCES = \
+stereozoom_SOURCES = \
 	src/Change.h \
 	src/Rectangle.h \
 	src/Image.h \
 	src/Image_group.h \
 	src/Image_group.h \
 	src/Rectangle.h \
-	src/stereozoom2.h \
+	src/stereozoom.h \
 	src/frontend.cpp \
-	src/stereozoom2_internal.h \
+	src/stereozoom_internal.h \
 	$(NUL)
 
-stereozoom2_LDADD = libstereozoom2.la $(allegro_LIBS) 
+stereozoom_LDADD = libstereozoom.la $(allegro_LIBS) 
 
-gstereozoom2_SOURCES = \
+wxstereozoom_SOURCES = \
 	src/Change.h \
 	src/Rectangle.h \
 	src/Image.h \
@@ -55,21 +55,21 @@ gstereozoom2_SOURCES = \
 	src/Base_gui.cpp \
 	src/Main_gui.h \
 	src/Main_gui.cpp \
-	src/Gstereozoom2.h \
-	src/Gstereozoom2.cpp \
-	src/stereozoom2_internal.h \
+	src/wxStereozoom.h \
+	src/wxStereozoom.cpp \
+	src/stereozoom_internal.h \
 	$(NUL)
 
 if WINDOWS_VERSION
-gstereozoom2_SOURCES += \
-	src/stereozoom2-msw.rc \
+wxstereozoom_SOURCES += \
+	src/stereozoom-msw.rc \
 	$(NUL)
 endif
 
-gstereozoom2_LDADD = libstereozoom2.la $(WX_LIBS) $(allegro_LIBS)
+wxstereozoom_LDADD = libstereozoom.la $(WX_LIBS) $(allegro_LIBS)
 
 AM_CPPFLAGS = $(WX_CPPFLAGS) 
-# the gstereozoom needs this to display the icon in the About dialog
+# the wxstereozoom needs this to display the icon in the About dialog
 AM_CPPFLAGS += -D'DATADIR(append)=TO_STRING($(datadir)/@DATA_SUBDIR@/append)'
 
 #how to build resources?

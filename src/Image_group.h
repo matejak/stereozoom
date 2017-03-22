@@ -12,7 +12,7 @@ using std::runtime_error;
 #include <chrono>
 using namespace std::chrono;
 
-#include "stereozoom2.h"
+#include "stereozoom.h"
 #include "Image.h"
 #include "Change.h"
 

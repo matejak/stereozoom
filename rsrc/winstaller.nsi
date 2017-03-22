@@ -15,14 +15,14 @@
 ;General
 
   ;Name and file
-  Name "stereozoom2"
-  OutFile "stereozoom2-install.exe"
+  Name "stereozoom"
+  OutFile "stereozoom-install.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\stereozoom2"
+  InstallDir "$PROGRAMFILES\stereozoom"
   
   ;Get installation folder from registry if available
-  InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom2" "InstallLocation"
+  InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom" "InstallLocation"
 
   ;Request application privileges for Windows Vista
   RequestExecutionLevel user
@@ -45,7 +45,7 @@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
-  !insertmacro MUI_PAGE_STARTMENU "stereozoom2" $StartMenuFolder
+  !insertmacro MUI_PAGE_STARTMENU "stereozoom" $StartMenuFolder
   !insertmacro MUI_PAGE_FINISH
 
   !insertmacro MUI_UNPAGE_WELCOME
@@ -67,11 +67,11 @@ InstType "Full"
 ; RO => read only section
 Section # "Mandatory"
   SectionIN 1 2 RO
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom2" \
-                   "DisplayName" "stereozoom2 - more than a cool stereo pairs viewer"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom2" \
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom" \
+                   "DisplayName" "stereozoom - more than a cool stereo pairs viewer"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom" \
                    "UninstallString" "$INSTDIR\uninstall.exe"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom2" \
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom" \
                    "InstallLocation" "$INSTDIR"
 
   CreateDirectory "$INSTDIR"
@@ -79,36 +79,36 @@ Section # "Mandatory"
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN stereozoom2
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN stereozoom
   CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall stereozoom2.lnk" "$INSTDIR\uninstall.exe"
+  CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall stereozoom.lnk" "$INSTDIR\uninstall.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 
 SectionEnd
 
 SubSection "programs" SecBIN
 
-  Section "gstereozoom2" SecBIN_GUI
+  Section "wxstereozoom" SecBIN_GUI
   SectionIN 1 2
   SetOutPath "$INSTDIR"
   
-  file ../bin/gstereozoom2.exe
+  file ../bin/wxstereozoom.exe
 
   file mingwm10.dll
   file DevIL.dll
   file alleg42.dll
  
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN stereozoom2
-  createShortCut "$SMPROGRAMS\$StartMenuFolder\gstereozoom2.lnk" "$INSTDIR\gstereozoom2.exe" "" "gstereozoom2.ico"
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN stereozoom
+  createShortCut "$SMPROGRAMS\$StartMenuFolder\wxstereozoom.lnk" "$INSTDIR\wxstereozoom.exe" "" "wxstereozoom.ico"
   !insertmacro MUI_STARTMENU_WRITE_END
 
   SectionEnd
 
-  Section "stereozoom2" SecBIN_CLI
+  Section "stereozoom" SecBIN_CLI
   SectionIN 2
   SetOutPath "$INSTDIR"
 
-  file ../bin/stereozoom2.exe
+  file ../bin/stereozoom.exe
   SectionEnd
 
 SubSectionEnd
@@ -118,10 +118,10 @@ SubSection "data files" SecDAT
   Section "documentation" SecDAT_HELP
   SectionIN 2
   SetOutPath "$INSTDIR\docs"
-;  file ../docs/stereozoom2.pdf
+;  file ../docs/stereozoom.pdf
 
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN stereozoom2
-  createShortCut "$SMPROGRAMS\$StartMenuFolder\stereozoom2 guide.lnk" "$INSTDIR\docs\stereozoom2.pdf"
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN stereozoom
+  createShortCut "$SMPROGRAMS\$StartMenuFolder\stereozoom guide.lnk" "$INSTDIR\docs\stereozoom.pdf"
   !insertmacro MUI_STARTMENU_WRITE_END
   SectionEnd
 
@@ -134,7 +134,7 @@ SubSectionEnd
 
 ; uninstaller section
 Section "Uninstall" 
-  Delete $INSTDIR\docs\stereozoom2.pdf
+  Delete $INSTDIR\docs\stereozoom.pdf
   RMDir  $INSTDIR\docs
 
   Delete $INSTDIR\images
@@ -146,39 +146,39 @@ Section "Uninstall"
   RMDir  $INSTDIR\images
 
   Delete $INSTDIR\uninstall.exe ; delete self (see explanation below why this works)
-  Delete $INSTDIR\gstereozoom2.exe
-  Delete $INSTDIR\stereozoom2.exe
+  Delete $INSTDIR\wxstereozoom.exe
+  Delete $INSTDIR\stereozoom.exe
   Delete $INSTDIR\mingwm10.dll
   Delete $INSTDIR\DevIL.dll
   Delete $INSTDIR\alleg42.dll
   RMDir  $INSTDIR
 
-  !insertmacro MUI_STARTMENU_GETFOLDER stereozoom2 $StartMenuFolder
+  !insertmacro MUI_STARTMENU_GETFOLDER stereozoom $StartMenuFolder
 
-  Delete "$SMPROGRAMS\$StartMenuFolder\gstereozoom2.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\stereozoom2 guide.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall stereozoom2.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\wxstereozoom.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\stereozoom guide.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall stereozoom.lnk"
   RMDir  "$SMPROGRAMS\$StartMenuFolder"
 
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom2" 
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom2"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom" 
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\stereozoom"
 SectionEnd
 ;--------------------------------
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecBIN ${LANG_ENGLISH} "The stereozoom2 based executables, you probably want this."
-  LangString DESC_SecBIN_GUI ${LANG_ENGLISH} "gstereozoom2 has a nice graphical interface, Windows users definitelly want this."
-  LangString DESC_SecBIN_CLI ${LANG_ENGLISH} "stereozoom2 has powerful command line interface, but is probably more useful with some decent shell or in scripts"
+  LangString DESC_SecBIN ${LANG_ENGLISH} "The stereozoom based executables, you probably want this."
+  LangString DESC_SecBIN_GUI ${LANG_ENGLISH} "wxstereozoom has a nice graphical interface, Windows users definitelly want this."
+  LangString DESC_SecBIN_CLI ${LANG_ENGLISH} "stereozoom has powerful command line interface, but is probably more useful with some decent shell or in scripts"
 
-  LangString DESC_SecLIB ${LANG_ENGLISH} "stereozoom2 library (licensed under LGPL) is useful if you want to develop applications or run applications based on it. You are probably not interested in it unless you are a programmer."
+  LangString DESC_SecLIB ${LANG_ENGLISH} "stereozoom library (licensed under LGPL) is useful if you want to develop applications or run applications based on it. You are probably not interested in it unless you are a programmer."
   LangString DESC_SecLIB_H ${LANG_ENGLISH} "header files, you need them if you want to use either of the libraries"
   LangString DESC_SecLIB_DLL ${LANG_ENGLISH} "shared library (DLL). Useful if you need one"
-  LangString DESC_SecLIB_A ${LANG_ENGLISH} "static library. Useful if you want to use stereozoom2 library without forcing people to install the DLL.Beware the LGPL licence though."
+  LangString DESC_SecLIB_A ${LANG_ENGLISH} "static library. Useful if you want to use stereozoom library without forcing people to install the DLL.Beware the LGPL licence though."
 
   LangString DESC_SecDAT ${LANG_ENGLISH} "The data files (documentation, sample images)"
-  LangString DESC_SecDAT_HELP ${LANG_ENGLISH} "If you want documentation for stereozoom2 interface and the library API"
-  LangString DESC_SecDAT_IMG ${LANG_ENGLISH} "You will lose the last doubts after trying stereozoom2 out on these sample images!"
+  LangString DESC_SecDAT_HELP ${LANG_ENGLISH} "If you want documentation for stereozoom interface and the library API"
+  LangString DESC_SecDAT_IMG ${LANG_ENGLISH} "You will lose the last doubts after trying stereozoom out on these sample images!"
 ;  LangString DESC_Sec ${LANG_ENGLISH} ""
 
   ;Assign language strings to sections
