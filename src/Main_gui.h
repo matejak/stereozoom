@@ -109,6 +109,7 @@ public:
 	Main_window();
 	virtual ~Main_window() 
 	{
+		clearGridSizer();
 		clearAllImagePanels();
 	}
 	/// Adds a row/column/both/none of picture panels depending where the user clicked
@@ -128,12 +129,21 @@ public:
 private:
 	void createMissingImagePanels();
 	void resizeSizer() {}
-	void removeImagePanelsThatAreOutside();
-	void clearAllImagePanels() {}
-	wxGridBagSizer Grid_images;	///< Pointer of the image panels sizer
+	void clearAllImagePanels();
+	void clearGridSizer()
+	{
+		if (grid_sizer != nullptr)
+		{
+			grid_sizer->Clear();
+			delete grid_sizer;
+			grid_sizer = nullptr;
+		}
+	}
+	wxGridSizer Grid_images;	///< Pointer of the image panels sizer
 	valarray<unsigned int> images_count;	///< How are the dimensions of the image preview matrix
 
-	unordered_set<pair<unsigned int, unsigned int>, pairhash> panels_in_sizer;
+	wxSizer * main_sizer;
+	wxSizer * grid_sizer;
 	unordered_map<pair<unsigned int, unsigned int>, Image_panel *, pairhash> known_panels;
 };
 

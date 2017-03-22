@@ -43,17 +43,49 @@ bool MyWxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& 
 }
 
 Main_window::Main_window():
-	Main_frame(NULL, -1, wxT("gStereozoom^2")), Grid_images(), images_count(XY<unsigned int>(0, 0))
+	Main_frame(NULL, -1, wxT("gStereozoom^2")), images_count(XY<unsigned int>(0, 0)), main_sizer(this->GetSizer()), grid_sizer(nullptr)
 {
-	wxSizer * Main_sizer;
-
-	Main_sizer = this->GetSizer();
 	Grid_images.SetFlexibleDirection(wxBOTH);
-
-	Main_sizer->Insert(0, & Grid_images, 1, wxEXPAND);
-
 	Regroup_panels();
 }
+
+
+void Main_window::setupSizer()
+{
+	auto new_grid_sizer = new wxGridSizer(images_count[X], images_count[Y]);
+	populateGridSizer(new_grid_sizer);
+	clearGridSizer();
+	grid_sizer = new_grid_sizer;
+	main_sizer->Insert(0, grid_sizer, 1, wxEXPAND);
+}
+
+
+void Main_window::clearAllImagePanels()
+{
+	wxWindow * current_panel = nullptr;
+	auto it = known_panels.begin()
+	while (it != known_panels.end())
+	{
+		current_panel = it->second;
+		it = known_panels.erase(it);
+		delete current_panel;
+	}
+}
+
+
+void Main_window::populateGridSizer(wxSizer * sizer)
+{
+	createMissingImagePanels()
+	for (unsigned int i = 0; i < images_count[X]; i++)
+	{
+		for (unsigned int j = 0; j < images_count[Y]; j++)
+		{
+			auto position = std::make_pair(i, j)
+			sizer->Add(known_panels[position]);
+		}
+	}
+}
+
 
 void Main_window::Regroup_panels()
 {
@@ -137,22 +169,6 @@ void Main_window::createMissingImagePanels()
 			{
 				known_panels.emplace(coord_index, new Image_panel(this, i, j));
 			}
-		}
-	}
-}
-
-
-void Main_window::removeImagePanelsThatAreOutside()
-{
-	for (auto && point: panels_in_sizer)
-	{
-		if (point.first >= images_count[X])
-		{
-			panels_in_sizer.erase(point);
-		}
-		if (point.second >= images_count[Y])
-		{
-			panels_in_sizer.erase(point);
 		}
 	}
 }
