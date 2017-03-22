@@ -103,6 +103,7 @@
                         <property name="minimum_size"></property>
                         <property name="name">sbSizer3</property>
                         <property name="orient">wxVERTICAL</property>
+                        <property name="parent">1</property>
                         <property name="permission">none</property>
                         <event name="OnUpdateUI"></event>
                         <object class="sizeritem" expanded="1">
@@ -902,6 +903,7 @@
                                         <property name="minimum_size"></property>
                                         <property name="name">sbSizer31</property>
                                         <property name="orient">wxHORIZONTAL</property>
+                                        <property name="parent">1</property>
                                         <property name="permission">none</property>
                                         <event name="OnUpdateUI"></event>
                                         <object class="sizeritem" expanded="1">
@@ -1978,7 +1980,7 @@
                 </object>
             </object>
         </object>
-        <object class="Panel" expanded="0">
+        <object class="Panel" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -2036,6 +2038,7 @@
                 <property name="minimum_size"></property>
                 <property name="name">Group_image</property>
                 <property name="orient">wxVERTICAL</property>
+                <property name="parent">1</property>
                 <property name="permission">none</property>
                 <event name="OnUpdateUI"></event>
                 <object class="sizeritem" expanded="1">

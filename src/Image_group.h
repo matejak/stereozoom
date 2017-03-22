@@ -80,6 +80,7 @@ protected:
 	set<MessageRecord *, APtrComp> messages;
 private:
 	MessageRecord * _addMessage(const char * msg, double time_to_live);
+	std::set<MessageRecord *, APtrComp>::iterator getMessageRecordPtr(MessageRecord * ptr);
 };
 
 

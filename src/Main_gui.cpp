@@ -32,7 +32,8 @@
 #include <sstream>
 
 
-bool MY_wxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
+
+bool MyWxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames)
 {
 	if(filenames.IsEmpty())
 		return false;
@@ -42,17 +43,14 @@ bool MY_wxFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString&
 }
 
 Main_window::Main_window():
-	Main_frame(NULL, -1, wxT("gStereozoom^2"))
+	Main_frame(NULL, -1, wxT("gStereozoom^2")), Grid_images(), images_count(XY<unsigned int>(0, 0))
 {
-	Images_size[X] = Images_size[Y] = 0;
-
 	wxSizer * Main_sizer;
 
 	Main_sizer = this->GetSizer();
-	Grid_images = new wxGridBagSizer();
-	Grid_images->SetFlexibleDirection(wxBOTH);
+	Grid_images.SetFlexibleDirection(wxBOTH);
 
-	Main_sizer->Insert(0, Grid_images, 1, wxEXPAND);
+	Main_sizer->Insert(0, & Grid_images, 1, wxEXPAND);
 
 	Regroup_panels();
 }
@@ -61,18 +59,18 @@ void Main_window::Regroup_panels()
 {
 	int spin_x = Spin_matrix_w->GetValue(),
 		spin_y = Spin_matrix_h->GetValue();
-	const int old_size[] = { Images_size[X], Images_size[Y] };
-	int current_size[Z];
-	copy_array<int, Z>(old_size, current_size);
+	const unsigned int old_size[] = { images_count[X], images_count[Y] };
+	unsigned int current_size[Z];
+	copy_array<unsigned int, Z>(old_size, current_size);
 	const int new_size[] = { spin_x, spin_y };
-	int point[Z];
+	unsigned int point[Z];
 	// this is needed in order to make smart vectorized stuff
 	void (wxFlexGridSizer::* add[Z]) (size_t, int) = { & wxFlexGridSizer::AddGrowableCol, & wxFlexGridSizer::AddGrowableRow};
 	void (wxFlexGridSizer::* remove[Z]) (size_t) = { & wxFlexGridSizer::RemoveGrowableCol, & wxFlexGridSizer::RemoveGrowableRow};
 
 	wxSizerFlags flags(1);
 	flags.Expand();
-	for (int i = 0; i < Z; i++)
+	for (int i = 0; i <= Y; i++)
 	{
 		int other_coord = (i + 1) % Z;
 		int diff = new_size[i] - old_size[i];
@@ -81,7 +79,7 @@ void Main_window::Regroup_panels()
 			for (int j = 0; j < diff; j++)
 			{
 				current_size[i] += 1;
-				copy_array<int, Z>(current_size, point);
+				copy_array<unsigned int, Z>(current_size, point);
 				point[i]--; // no buffer overflow, please
 				for (int k = 0; k < current_size[other_coord]; k++)
 				{// Now adding a row/column. 'k' goes through "the other than i" coord
@@ -89,9 +87,9 @@ void Main_window::Regroup_panels()
 					wxGBPosition pos(point[Y], point[X]);
 
 					Image_panel * image = new Image_panel(this, point[X], point[Y]);
-					Grid_images->Add(image, pos, wxDefaultSpan, wxEXPAND);	//and to the sizer
+					Grid_images.Add(image, pos, wxDefaultSpan, wxEXPAND);	//and to the sizer
 				}//end for (int k = 0; k < current_size[(i + 1) % 2]; k++)
-				(Grid_images->*add[i])(point[i], 0);
+				(Grid_images.*add[i])(point[i], 0);
 			}//endfor (j = 0; j < diff; j++)
 		}// endif(diff > 0)
 		else
@@ -100,32 +98,65 @@ void Main_window::Regroup_panels()
 			for (int j = 0; j < diff; j++)
 			{
 				current_size[i] -= 1;
-				copy_array<int, Z>(current_size, point);
+				copy_array<unsigned int, Z>(current_size, point);
 				//point[i]--; // we get rid of somethging, so don't uncomment this!
 				for (int k = 0; k < current_size[other_coord]; k++)
 				{// Now adding a row/column. 'k' goes through "the other than i" coord
 					point[other_coord] = k;
 					wxGBPosition pos(point[Y], point[X]);
 
-					wxWindow * panel = Grid_images->FindItemAtPosition(pos)->GetWindow();
-					Grid_images->Detach(panel);
+					wxWindow * panel = Grid_images.FindItemAtPosition(pos)->GetWindow();
+					Grid_images.Detach(panel);
 					panel->Destroy();
 				}//end for (int k = 0; k < current_size[(i + 1) % 2]; k++)
-				(Grid_images->*remove[i])(point[i]);
+				(Grid_images.*remove[i])(point[i]);
 			}//endfor (j = 0; j < diff; j++)
 		}// endelse(diff > 0)
 	}
 
-	Grid_images->SetCols(spin_x);
-	Grid_images->SetRows(spin_y);
+	Grid_images.SetCols(spin_x);
+	Grid_images.SetRows(spin_y);
 
-	Images_size[X] = spin_x;
-	Images_size[Y] = spin_y;
+	images_count[X] = spin_x;
+	images_count[Y] = spin_y;
 
 	//Grid_images->Layout();
 	this->Fit();
 	this->GetSizer()->RecalcSizes();
 }
+
+
+void Main_window::createMissingImagePanels()
+{
+	for (unsigned int i = 0; i < images_count[X]; i++)
+	{
+		for (unsigned int j = 0; j < images_count[Y]; j++)
+		{
+			auto coord_index = pair<unsigned int, unsigned int>(i, j);
+			if (known_panels.find(coord_index) == known_panels.end())
+			{
+				known_panels.emplace(coord_index, new Image_panel(this, i, j));
+			}
+		}
+	}
+}
+
+
+void Main_window::removeImagePanelsThatAreOutside()
+{
+	for (auto && point: panels_in_sizer)
+	{
+		if (point.first >= images_count[X])
+		{
+			panels_in_sizer.erase(point);
+		}
+		if (point.second >= images_count[Y])
+		{
+			panels_in_sizer.erase(point);
+		}
+	}
+}
+
 
 void Main_window::Start_clicked( wxCommandEvent& event )
 {
@@ -136,12 +167,12 @@ void Main_window::Start_clicked( wxCommandEvent& event )
 	Image_panel * impanel = 0;
 	for (int i = 0; i < Spin_matrix_w->GetValue() * Spin_matrix_h->GetValue(); i++)
 	{
-		impanel = (Image_panel *)(Grid_images->GetItem(i)->GetWindow());
+		impanel = (Image_panel *)(Grid_images.GetItem(i)->GetWindow());
 		if (impanel->Check_use->GetValue() == false)
 			command << "-s\n1\n";
 		else
 		{
-			impanel = (Image_panel *)(Grid_images->GetItem(i)->GetWindow());
+			impanel = (Image_panel *)(Grid_images.GetItem(i)->GetWindow());
 			command << "-f\n" << impanel->Get_filename().mb_str() << "\n";
 		}//endelse(impanel->Check_use->GetValue() == false)
 	}
@@ -183,7 +214,7 @@ void Main_window::About_clicked( wxCommandEvent& event )
 Image_panel::Image_panel(Main_window * parent, int x, int y):
 	Panel_image((wxWindow *)parent, -1)
 {
-	Dragndrop_target = new MY_wxFileDropTarget(this);
+	Dragndrop_target = new MyWxFileDropTarget(this);
 	// drag and drop support
 	SetDropTarget(Dragndrop_target);
 }
@@ -193,7 +224,7 @@ Image_panel::Image_panel(const Image_panel & rhs):
 {
 	Image = rhs.Image;
 	Current_file = rhs.Current_file;
-	Dragndrop_target = new MY_wxFileDropTarget(this);
+	Dragndrop_target = new MyWxFileDropTarget(this);
 	SetDropTarget(Dragndrop_target);
 }
 

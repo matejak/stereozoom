@@ -30,32 +30,52 @@
 #include <wx/gbsizer.h>
 #include <wx/timer.h>
 
+#include <unordered_map>
+using std::unordered_map;
+#include <utility>
+using std::pair;
+#include <unordered_set>
+using std::unordered_set;
+
 #include "Image_group.h"
 #include "Base_gui.h"
 
 class Main_window;
 class Image_panel;
 
-class  MY_wxFileDropTarget : public wxFileDropTarget
+
+
+struct pairhash {
+public:
+	inline std::size_t operator()(const std::pair<unsigned int, unsigned int> &c) const
+	{
+		unsigned int x = c.first;
+		unsigned int y = c.second;
+		return y + x * 1000;
+	}
+};
+
+
+class  MyWxFileDropTarget : public wxFileDropTarget
 {
 public:
-	MY_wxFileDropTarget(Image_panel * owner)
-	{ Owner = owner; }
+	MyWxFileDropTarget(Image_panel * owner): Owner(owner) {}
 	/// We accept dropped files...
 	virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
 private:
 	Image_panel * Owner;
 };
 
+
 class MY_timer : public wxTimer
 {
 public:
-	MY_timer(wxWindow * to_update):
-		To_update(to_update) {}
+	MY_timer(wxWindow * to_update): To_update(to_update) {}
 private:
 	virtual void Notify() { (To_update - 2)->Refresh(); }
 	wxWindow * To_update;
 };
+
 
 /// This is the class that holds the image stuff -- the preview, file picker and checkboxes
 class Image_panel : public Panel_image
@@ -87,7 +107,10 @@ class Main_window : public Main_frame
 {
 public:
 	Main_window();
-	virtual ~Main_window() {}
+	virtual ~Main_window() 
+	{
+		clearAllImagePanels();
+	}
 	/// Adds a row/column/both/none of picture panels depending where the user clicked
 	void Check_dimensions(int x, int y);
 	/// Regroups panels after a row was added/deleted
@@ -103,9 +126,15 @@ public:
 	virtual void Exit_clicked( wxCommandEvent& event )
 	{ this->Close(); }
 private:
-	wxGridBagSizer * Grid_images;	///< Pointer of the image panels sizer
-	//wxFlexGridSizer * Grid_images;	///< Pointer of the image panels sizer
-	int Images_size[2];	///< How are the dimensions of the image preview matrix
+	void createMissingImagePanels();
+	void resizeSizer() {}
+	void removeImagePanelsThatAreOutside();
+	void clearAllImagePanels() {}
+	wxGridBagSizer Grid_images;	///< Pointer of the image panels sizer
+	valarray<unsigned int> images_count;	///< How are the dimensions of the image preview matrix
+
+	unordered_set<pair<unsigned int, unsigned int>, pairhash> panels_in_sizer;
+	unordered_map<pair<unsigned int, unsigned int>, Image_panel *, pairhash> known_panels;
 };
 
 

@@ -290,21 +290,38 @@ MessageRecord::MessageRecord(const char * text, double duration):
 
 MessageService::~MessageService()
 {
-	for (set<MessageRecord *, APtrComp>::iterator it = messages.begin(); it != messages.end(); it++)
+	auto it_next = messages.end();
+	for (auto it = messages.begin(); it != messages.end(); it = it_next)
 	{
-		messages.erase(it);
-		delete * it;
+		MessageRecord * to_delete = * it;
+		it_next = messages.erase(it);
+		delete to_delete;
 	}
 }
 
+
+std::set<MessageRecord *, APtrComp>::iterator MessageService::getMessageRecordPtr(MessageRecord * ptr)
+{
+	for(std::set<MessageRecord *, APtrComp>::iterator it = messages.begin(); it != messages.end(); it++)
+	{
+		if ((* it) == ptr)
+		{
+			return it;
+		}
+	}
+	return messages.end();
+}
+
+
 MessageRecord * MessageService::addRefreshableMessage(const char * msg, double time_to_live, MessageRecord * previous_message)
 {
-	std::set<MessageRecord *, APtrComp>::iterator it = messages.find(previous_message);
+	std::set<MessageRecord *, APtrComp>::iterator it = getMessageRecordPtr(previous_message);
 	if (it != messages.end())
 	{
 		// we need to erase and insert in order to ensure proper set ordering with new insert time
+		MessageRecord * to_delete = * it;
 		messages.erase(it);
-		delete * it;
+		delete to_delete;
 	}
 	MessageRecord * ret = _addMessage(msg, time_to_live);
 	return ret;
@@ -327,13 +344,15 @@ MessageRecord * MessageService::_addMessage(const char * msg, double time_to_liv
 
 void MessageService::purgeOldMessages()
 {
-	for (set<MessageRecord *, APtrComp>::iterator it = messages.begin(); it != messages.end(); it++)
+	set<MessageRecord *, APtrComp>::iterator it_next = messages.end();
+	for (set<MessageRecord *, APtrComp>::iterator it = messages.begin(); it != messages.end(); it = it_next)
 	{
 		if ((* it)->getRemainingSeconds() <= 0)
 		{
 			// printf("Erasing %s\n", (*it)->message->text.c_str());
-			messages.erase(it);
-			delete (* it);
+			MessageRecord * to_delete = * it;
+			it_next = messages.erase(it);
+			delete to_delete;
 		}
 	}
 }
@@ -346,7 +365,7 @@ void AllegroMessageService::displayMessages() const
 	int color;
 	unsigned int max_row_len = 0, current_row_height = 0, previous_row_end = 0, row_break = 5;
 	double relative_alpha = 0;
-	for (set<MessageRecord *>::iterator it = messages.begin(); it != messages.end(); it++)
+	for (auto it = messages.begin(); it != messages.end(); it++)
 	{
 		text = (* it)->getMessageText();
 		for (unsigned int i = 0, current_length = 0; i <= text.size(); current_length++, i++)
