@@ -16,6 +16,7 @@ AC_SUBST([DATA_SUBDIR],
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
+PKG_PROG_PKG_CONFIG
 
 AM_PROG_AR
 AC_PROG_LIBTOOL
@@ -27,6 +28,45 @@ AS_IF([test "${host_os:0:5}" = "mingw"],
 		 [1],
 		 [Define when building for Windows])
        windows_version="yes"])
+
+
+AC_ARG_WITH(
+	[allegro4], 
+	AS_HELP_STRING([--with-allegro4], [Build with the legacy Allegro 4.x backend]), 
+	[], [enable_allegro4='auto'])
+
+AC_ARG_WITH(
+	[allegro], 
+	AS_HELP_STRING([--with-allegro], [Build with the Allegro 5.x backend]),
+	[], [enable_allegro='auto'])
+
+AC_ARG_WITH(
+	[sdl], 
+	AS_HELP_STRING([--with-sdl], [Build with the SDL backend])
+	[], [enable_sdl='auto'])
+
+AC_ARG_WITH(
+	[wx], 
+	AS_HELP_STRING([--with-wx], [Build with the wxWidgets GUI]),
+	[], [enable_wx='auto'])
+
+AS_IF([test "x$with_allegro4" != "xno"],
+      [PKG_CHECK_MODULES([ALLEGRO4], [allegro<5])])
+
+AM_CONDITIONAL([ALLEGRO4_BACKEND],
+	       [test "x$ALLEGRO4_LIBS" != "x" ])
+
+m4_define([WANT_PACKAGE], [m4_do(
+	[m4_pushdef([_UPPERCASE], m4_translit([[$1]], a-z, A-Z))],
+	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])],
+	[AS_IF([test "x$with_$1" != "xno"], [PKG_CHECK_MODULES(_UPPERCASE, [$4])])],
+	[AS_IF([test "x$with_$1" = "xyes" -a "x$_UPPERCASE[]_LIBS" = "x"], [AC_MSG_ERROR([$3])])],
+	[AM_CONDITIONAL(_UPPERCASE[_BACKEND], [test "x$_UPPERCASE[]_LIBS" = "x"])],
+	[m4_popdef([_UPPERCASE])],
+)])
+
+WANT_PACKAGE([devil], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
+WANT_PACKAGE([allegro], [Build with the Allegro backend], ["Usage of the Allegro5 backend has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
 
 AM_CONDITIONAL([WINDOWS_VERSION],
 	       [test "x$windows_version" = "xyes" ])
