@@ -34,14 +34,14 @@ public:
 	{
 		clean();
 	}
-	BITMAP * bitmap;
-	virtual bool isEmpty() const
+	virtual bool isEmpty() const override
 	{
 		return (bitmap == 0);
 	}
 protected:
-	virtual void mkImageDataStructure(unsigned char * rgbdata);
+	virtual void mkImageDataStructure(unsigned char * rgbdata) override;
 	void clean();
+	BITMAP * bitmap;
 };
 
 
@@ -49,21 +49,6 @@ class Loader
 {
 public:
 	virtual void loadFromFileToImage(const char * filename, Image * result) const = 0;
-};
-
-
-class ILLoader: public Loader
-{
-public:
-	ILLoader()
-	{
-		ilInit();
-		ilEnable(IL_ORIGIN_SET);
-	}
-	~ILLoader()
-	{
-	}
-	void loadFromFileToImage(const char * filename, Image * result) const;
 };
 
 

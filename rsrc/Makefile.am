@@ -1,4 +1,4 @@
-if WANT_GUI
+if WX_BACKEND
 sz2dir = @datadir@/@DATA_SUBDIR@
 dist_sz2_DATA = logo_stereozoom2.png 
 

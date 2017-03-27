@@ -30,54 +30,44 @@ AS_IF([test "${host_os:0:5}" = "mingw"],
        windows_version="yes"])
 
 
-AC_ARG_WITH(
-	[allegro4], 
-	AS_HELP_STRING([--with-allegro4], [Build with the legacy Allegro 4.x backend]), 
-	[], [enable_allegro4='auto'])
-
-AC_ARG_WITH(
-	[allegro], 
-	AS_HELP_STRING([--with-allegro], [Build with the Allegro 5.x backend]),
-	[], [enable_allegro='auto'])
-
-AC_ARG_WITH(
-	[sdl], 
-	AS_HELP_STRING([--with-sdl], [Build with the SDL backend])
-	[], [enable_sdl='auto'])
-
-AC_ARG_WITH(
-	[wx], 
-	AS_HELP_STRING([--with-wx], [Build with the wxWidgets GUI]),
-	[], [enable_wx='auto'])
-
-AS_IF([test "x$with_allegro4" != "xno"],
-      [PKG_CHECK_MODULES([ALLEGRO4], [allegro<5])])
-
-AM_CONDITIONAL([ALLEGRO4_BACKEND],
-	       [test "x$ALLEGRO4_LIBS" != "x" ])
-
 m4_define([WANT_PACKAGE], [m4_do(
-	[m4_pushdef([_UPPERCASE], m4_translit([[$1]], a-z, A-Z))],
-	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])],
-	[AS_IF([test "x$with_$1" != "xno"], [PKG_CHECK_MODULES(_UPPERCASE, [$4])])],
-	[AS_IF([test "x$with_$1" = "xyes" -a "x$_UPPERCASE[]_LIBS" = "x"], [AC_MSG_ERROR([$3])])],
-	[AM_CONDITIONAL(_UPPERCASE[_BACKEND], [test "x$_UPPERCASE[]_LIBS" = "x"])],
-	[m4_popdef([_UPPERCASE])],
+	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])
+],
+	[AS_IF([test "x$with_$1" != "xno"], [PKG_CHECK_MODULES([$1], [$4], [], [true])])
+],
+	[AS_IF([test "x$with_$1" = "xyes" -a "x$[$1_LIBS]" = "x"], [AC_MSG_ERROR([$3])])
+],
+	[AM_CONDITIONAL([$1_BACKEND], [test "x$[$1_LIBS]" = "x"])],
 )])
 
-WANT_PACKAGE([devil], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
-WANT_PACKAGE([allegro], [Build with the Allegro backend], ["Usage of the Allegro5 backend has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
+
+m4_define([WANT_WX], [m4_do(
+	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])
+],
+	[AS_IF([test "x$with_$1" != "xno"], [AM_PATH_WXCONFIG(2.8.0, [have_wx='yes'])])
+],
+	[AS_IF([test "x$with_$1" = "xyes" -a "x$have_wx" != "xyes"], [AC_MSG_ERROR([$3])])
+],
+	[AM_CONDITIONAL([WX_BACKEND], [test "x$have_wx" = "xyes"])],
+)])
+
+WANT_PACKAGE([DevIL], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
+
+WANT_PACKAGE([allegro5], [Build with the Allegro backend], ["Usage of the Allegro5 backend has been specifically requested, but it seems that we can't find it"], [allegro > 5.0], [ALLEGRO5_BACKEND])
+
+WANT_PACKAGE([allegro4], [Build with the legacy Allegro 4.x backend], ["Usage of the legacy Allegro 4.x backend has been specifically requested, but it seems that we can't find it"], [allegro < 5.0], [ALLEGRO4_BACKEND])
+
+WANT_WX([wx], [Build with the wxWidgets backend], ["Usage of the wxWidgets GUI has been specifically requested, but it seems that we can't find it"])
 
 AM_CONDITIONAL([WINDOWS_VERSION],
 	       [test "x$windows_version" = "xyes" ])
 
-# Checks for user preferences
-AC_ARG_ENABLE([gui], 
-	      [AS_HELP_STRING([--disable-gui], 
-			      [Disables build of wxwidgets GUI (default = yes)] )], 
-	      [], 
-	      [enable_gui="auto"])
+AC_LANG([C++])
 
+# Checks for header files.
+AC_CHECK_HEADERS([windows.h unistd.h])
+
+m4_ignore([
 # Checks for libraries.
 AC_CHECK_HEADER([allegro.h],
 		[],
@@ -110,29 +100,12 @@ AS_IF([test "x$have_allegro" != "xno" -a "x$have_allegro" != "xyes"],
 AS_IF([test "x$have_allegro" != "xyes"],
       [AC_MSG_ERROR([Unable to find Allegro game programming library 4.x, check out www.allegro.cc (or your distro repositories if you use a unix-like system)]) ])
 
-# If the user isn't against it, try to use wxwidgets, and ...
-AS_IF([test "x$enable_gui" != "xno"], 
-      [AM_PATH_WXCONFIG(2.8.0, [HAVE_WXWIDGETS=1]) ])
-
-# Define the symbol so that Allegro drops the "magic main" stuff and the user is reported on how the attempt to build GUI has ended
-AS_IF([test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" != "x1"], 
-      [enable_gui="no (suitable wxWidgets installation not found)"], 
-      [test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" = "x1"], 
-      [AC_DEFINE([WANT_GUI], 
-		 1, 
-		 [Define if you want to build a wxWidgets GUI]) ])
-
 # ... subsequently declare we want to build the gui frontend
 AM_CONDITIONAL([WANT_GUI], 
 	       [test "x$HAVE_WXWIDGETS" = "x1"]) 
 
 AC_MSG_CHECKING([whether to build GUI frontend])
 AC_MSG_RESULT([$enable_gui])
-
-AC_LANG([C++])
-
-# Checks for header files.
-AC_CHECK_HEADERS([windows.h unistd.h])
 
 AC_CHECK_HEADER([IL/il.h],
 		[AC_CHECK_LIB([IL], 
@@ -147,6 +120,7 @@ AC_CHECK_HEADER([IL/il.h],
 AS_IF([test "x$have_IL" != "xyes"],
       [AC_MSG_ERROR([You don't have the IL/il.h header file (and/or the IL library). Make sure you have DevIL image loading library properly installed (see http://openil.sourceforge.net)]) ])
 
+])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

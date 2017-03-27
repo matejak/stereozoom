@@ -2,7 +2,7 @@ NUL =
 
 bin_PROGRAMS = stereozoom2
 
-if WANT_GUI
+if WX_BACKEND
 bin_PROGRAMS += gstereozoom2
 endif
 
@@ -30,7 +30,7 @@ include_HEADERS = \
 	src/stereozoom2.h \
 	$(NUL)
 
-libstereozoom2_la_LIBADD = $(allegro_LIBS)
+libstereozoom2_la_LIBADD = $(allegro4_LIBS)
 
 stereozoom2_SOURCES = \
 	src/Change.h \
@@ -44,7 +44,7 @@ stereozoom2_SOURCES = \
 	src/stereozoom2_internal.h \
 	$(NUL)
 
-stereozoom2_LDADD = libstereozoom2.la $(allegro_LIBS) 
+stereozoom2_LDADD = libstereozoom2.la $(allegro4_LIBS) 
 
 gstereozoom2_SOURCES = \
 	src/Change.h \
@@ -66,7 +66,7 @@ gstereozoom2_SOURCES += \
 	$(NUL)
 endif
 
-gstereozoom2_LDADD = libstereozoom2.la $(WX_LIBS) $(allegro_LIBS)
+gstereozoom2_LDADD = libstereozoom2.la $(WX_LIBS) $(allegro4_LIBS)
 
 AM_CPPFLAGS = $(WX_CPPFLAGS) 
 # the gstereozoom needs this to display the icon in the About dialog

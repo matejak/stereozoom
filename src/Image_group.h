@@ -151,27 +151,45 @@ class Crosshair
 {
 public:
 	Crosshair(): bitmap(0) {}
-	~Crosshair()
-	{
-		if (bitmap) {
-			destroy_bitmap(bitmap); }
-		bitmap = 0;
-	}
-	void createNormal(unsigned int size);
-	void draw(BITMAP * dest_bitmap, int x, int y) const
-	{
-		if (bitmap == NULL) 
-			throw runtime_error("Attempted to draw a non-existing crosshair.");
-		draw_sprite(dest_bitmap, bitmap, x - bitmap->w / 2.0, y - bitmap->h / 2.0);
-	}
+	virtual ~Crosshair() {}
+	virtual void createNormal(unsigned int size) = 0;
+	virtual void draw(int x, int y) const = 0;
 	void createFocused(unsigned int size)
 	{
 		createNormal(size);
-		circle(bitmap, bitmap->w / 2, bitmap->h / 2, size / 6, makecol(255,255,0));
-		circle(bitmap, bitmap->w / 2, bitmap->h / 2, size / 15, makecol(0, 0, 0));
+		drawCenteredCircle(size / 6, 255, 255, 0);
+		drawCenteredCircle(size / 15, 0, 0, 0);
 	}
 protected:
-	BITMAP * bitmap;
+	void drawCenteredCircle(double radius, int col_r, int col_g, int col_b);
+};
+
+
+class AllegroCrosshair: public Crosshair
+{
+public:
+	AllegroCrosshair(BITMAP ** destination):
+		Crosshair(), dest_bitmap_ptr(destination), our_crosshair(0) {}
+	virtual ~AllegroCrosshair()
+	{
+		if (our_crosshair)
+		{
+			destroy_bitmap(our_crosshair);
+		}
+		our_crosshair = 0;
+	}
+	virtual void createNormal(unsigned int size) override;
+	virtual void draw(int x, int y) const override
+	{
+		if (* dest_bitmap == nullptr) 
+			throw runtime_error("Attempted to draw a non-existing crosshair.");
+		draw_sprite(* dest_bitmap, our_crosshair, x - our_crosshair->w / 2.0, y - our_crosshair->h / 2.0);
+	}
+private:
+	void drawCenteredCircle(double radius, int col_r, int col_g, int col_b)
+	{
+		circle(our_crosshair, our_crosshair->w / 2, our_crosshair->h / 2, radius, makecol(col_r, col_g, col_b))
+	}
 };
 
 
