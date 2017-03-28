@@ -1,5 +1,4 @@
-#ifndef IMAGE_H_
-#define IMAGE_H_
+#pragma once
 
 #include "Rectangle.h"
 
@@ -26,30 +25,8 @@ protected:
 };
 
 
-class AllegroImage: public Image
-{
-public:
-	AllegroImage():Image(), bitmap(0) {}
-	virtual ~AllegroImage()
-	{
-		clean();
-	}
-	virtual bool isEmpty() const override
-	{
-		return (bitmap == 0);
-	}
-protected:
-	virtual void mkImageDataStructure(unsigned char * rgbdata) override;
-	void clean();
-	BITMAP * bitmap;
-};
-
-
 class Loader
 {
 public:
 	virtual void loadFromFileToImage(const char * filename, Image * result) const = 0;
 };
-
-
-#endif /*IMAGE_H_*/

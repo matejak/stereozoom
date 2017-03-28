@@ -1,5 +1,4 @@
-#ifndef PAIR_H_
-#define PAIR_H_
+#pragma once
 
 #include <vector>
 using std::vector;
@@ -21,80 +20,12 @@ enum sensitivity_subject {OF_ZOOM, OF_SHIFT, OF_OFFSET, SUBJECTS_COUNT};
 enum sensitivity_device {BOOST, BY_KEYBOARD, BY_MOUSE, DEVICE_COUNT};
 
 
-class Message
-{
-public:
-	Message(const char * text):text(text) {}
-	std::string text;
-
-};
-
-
-class MessageRecord
-{
-public:
-	MessageRecord(const char * text, double duration);
-	~MessageRecord() 
-	{
-		delete message;
-		message = nullptr;
-	}
-	double time_to_expire;
-	time_point<steady_clock> time_inserted;
-
-	double getRemainingSeconds()
-	{
-		double ret = (duration_cast<milliseconds>(time_inserted.time_since_epoch() - steady_clock::now().time_since_epoch())).count() / 1000.0 + time_to_expire;
-		return ret;
-	}
-
-	std::string getMessageText() const
-	{
-		return message->text;
-	}
-
-	Message * message;
-};
-
-
-
 struct APtrComp
 {
 	bool operator () (const MessageRecord * lhs, const MessageRecord * rhs) const
 	{
 		return lhs->time_inserted < rhs->time_inserted;
 	}
-};
-
-
-class MessageService
-{
-public:
-	virtual ~MessageService();
-	void addMessage(const char * msg, double time_to_live);
-	MessageRecord * addRefreshableMessage(const char * msg, double time_to_live, MessageRecord * previous_message=nullptr);
-	void cleanOldMessages();
-	virtual void displayMessages() const = 0;
-	void purgeOldMessages();
-protected:
-	set<MessageRecord *, APtrComp> messages;
-private:
-	MessageRecord * _addMessage(const char * msg, double time_to_live);
-	std::set<MessageRecord *, APtrComp>::iterator getMessageRecordPtr(MessageRecord * ptr);
-};
-
-
-class SpecializedMessageService: public MessageService
-{
-public:
-	virtual ~SpecializedMessageService() {}
-	SpecializedMessageService():MessageService(), offset_message(nullptr) {}
-	void showOffsetMessage(const char * offset)
-	{
-		offset_message = addRefreshableMessage(offset, 4, offset_message);
-	}
-private:
-	MessageRecord * offset_message;
 };
 
 
@@ -272,42 +203,23 @@ protected:
 };
 
 
-class AllegroImageGrid: public ImageGrid
+class GenericUI
 {
 public:
-	AllegroImageGrid(unsigned int group_width, unsigned int group_height, unsigned int view_width, unsigned int view_height):
-		ImageGrid(group_width, group_height, view_width, view_height) 
-	{}
-
-	void gfxModeOn()
-	{
-		int crosshair_dimension = int(60 * sqrt(view_size.min() / 300.0));
-		normal_crosshair.createNormal(crosshair_dimension);
-		focused_crosshair.createFocused(crosshair_dimension);
-	}
-
-	virtual void LoadImageWhere(const char * filename, int x, int y, const Loader * loader);
-	virtual void blit(BITMAP * buffer);
-
-	void draw_crosshairs(BITMAP * buffer, unsigned int coord_x, unsigned int coord_y);
-
-	valarray<int> getViewCoordinates() const override;
-
-private:
-	virtual valarray<unsigned int> getCurrentViewCoords() const
-	{
-		return XY<unsigned int>(mouse_x, mouse_y) / view_size;
-	}
-	Crosshair normal_crosshair;
-	Crosshair focused_crosshair;
+	GenericUI(Sensitivity * sensitivities, MessageService * message_service):
+		sensitivities(sensitivities), stereotuple(stereotuple), dont_stop(true), dragging_now(false), message_service(message_service) {}
+protected:
+	MessageService * message_service;
+	bool dont_stop;
+	Sensitivity * sensitivities;
 };
 
 
-class AllegroUI
+class AllegroUI : public GenericUI
 {
 public:
 	AllegroUI(AllegroImageGrid & stereotuple):
-		sensitivities(), screen_buffer(0), stereotuple(stereotuple), dont_stop(true), dragging_now(false), message_service(& screen_buffer) {}
+		sensitivities(), screen_buffer(0), stereotuple(stereotuple), dont_stop(true), dragging_now(false) {}
 	~AllegroUI() 
 	{
 		clean();
@@ -319,9 +231,6 @@ public:
 		valarray<unsigned int> window_size_in_pixels = stereotuple.getSizeInPixels();
 
 		int setmode_code = set_gfx_mode(GFX_AUTODETECT_WINDOWED, window_size_in_pixels[X], window_size_in_pixels[Y], 0, 0);
-
-		if (1)
-			printf("Graphics mode: %dx%d, result: %d\n", window_size_in_pixels[X], window_size_in_pixels[Y], setmode_code);
 
 		if (verbose)
 			printf("Trying to set resolution: %dx%d, %d bpp\n", window_size_in_pixels[X], window_size_in_pixels[Y], get_color_depth());
@@ -337,7 +246,7 @@ public:
 		while(dont_stop)
 		{
 			draw();
-			message_service.purgeOldMessages();
+			message_service->purgeOldMessages();
 			rest(50);
 			
 			sensitivities.setBoostedStatus();
@@ -371,7 +280,7 @@ public:
 		clear_to_color(screen_buffer, makecol(0, 0, 0));
 		stereotuple.blit(screen_buffer);
 		stereotuple.draw_crosshairs(screen_buffer, mouse_x, mouse_y);
-		message_service.displayMessages();
+		message_service->displayMessages();
 		blit(screen_buffer, screen, 0, 0, 0, 0, screen_buffer->w, screen_buffer->h);
 	}
 private:
@@ -384,8 +293,4 @@ private:
 	bool dont_stop;
 
 	bool dragging_now;
-
-	AllegroMessageService message_service;
 };
-
-#endif /*PAIR_H_*/

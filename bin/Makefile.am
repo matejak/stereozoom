@@ -22,6 +22,17 @@ libstereozoom2_la_SOURCES = \
 	src/stereozoom2_internal.h \
 	$(NUL)
 
+if ALLEGRO4_BACKEND
+libstereozoom2_la_SOURCES += \
+	src/AllegroImage.h \
+	src/AllegroImage.cpp \
+	src/AllegroImageGrid.h \
+	src/AllegroImageGrid.cpp \
+	src/AllegroUI.h \
+	src/AllegroUI.cpp \
+	$(NUL)
+endif
+
 include_HEADERS = \
 	src/Change.h \
 	src/Image_group.h \
