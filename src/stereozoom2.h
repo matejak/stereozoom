@@ -1,5 +1,4 @@
-#ifndef STEREOZOOM2_H_
-#define STEREOZOOM2_H_
+#pragma once
 
 /*
  * This file is part of stereozoom2.
@@ -101,8 +100,8 @@ private:
 	int Grow_mode;	///< Are we going to fill rows, or columns?
 	int Expected;	///< Are we expecting some parameter to be passed?
 
-	int Resolution[2];	///< The current size of one displayed image
-	int Max_coords[2];	///< The "bounding rectangle" of the image arrangement
+	unsigned int Resolution[2];	///< The current size of one displayed image
+	unsigned int Max_coords[2];	///< The "bounding rectangle" of the image arrangement
 };
 
 enum corner {ULX = 0, ULY, LRX, LRY, UPPER_LEFT_X = 0, UPPER_LEFT_Y, LOWER_RIGHT_X, LOWER_RIGHT_Y};
@@ -120,5 +119,3 @@ T MAX(T  x, T  y)
 template <class T>
 T MIN(T  x, T  y)
 {return (x < y ? x : y);}
-
-#endif /*STEREOZOOM2_H_*/

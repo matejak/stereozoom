@@ -2,7 +2,7 @@ NUL =
 
 bin_PROGRAMS = stereozoom2
 
-if WX_BACKEND
+if wx_BACKEND
 bin_PROGRAMS += gstereozoom2
 endif
 
@@ -22,14 +22,19 @@ libstereozoom2_la_SOURCES = \
 	src/stereozoom2_internal.h \
 	$(NUL)
 
-if ALLEGRO4_BACKEND
+if allegro4_BACKEND
 libstereozoom2_la_SOURCES += \
 	src/AllegroImage.h \
 	src/AllegroImage.cpp \
-	src/AllegroImageGrid.h \
-	src/AllegroImageGrid.cpp \
-	src/AllegroUI.h \
-	src/AllegroUI.cpp \
+	src/AllegroImageGroup.h \
+	src/AllegroImageGroup.cpp \
+	$(NUL)
+endif
+
+if DevIL_BACKEND
+libstereozoom2_la_SOURCES += \
+	src/ILLoader.h \
+	src/ILLoader.cpp \
 	$(NUL)
 endif
 
@@ -41,7 +46,7 @@ include_HEADERS = \
 	src/stereozoom2.h \
 	$(NUL)
 
-libstereozoom2_la_LIBADD = $(allegro4_LIBS)
+libstereozoom2_la_LIBADD = $(allegro4_LIBS) $(DevIL_LIBS)
 
 stereozoom2_SOURCES = \
 	src/Change.h \

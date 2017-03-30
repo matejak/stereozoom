@@ -37,7 +37,7 @@ m4_define([WANT_PACKAGE], [m4_do(
 ],
 	[AS_IF([test "x$with_$1" = "xyes" -a "x$[$1_LIBS]" = "x"], [AC_MSG_ERROR([$3])])
 ],
-	[AM_CONDITIONAL([$1_BACKEND], [test "x$[$1_LIBS]" = "x"])],
+	[AM_CONDITIONAL([$1_BACKEND], [test "x$[$1_LIBS]" != "x"])],
 )])
 
 
@@ -48,7 +48,7 @@ m4_define([WANT_WX], [m4_do(
 ],
 	[AS_IF([test "x$with_$1" = "xyes" -a "x$have_wx" != "xyes"], [AC_MSG_ERROR([$3])])
 ],
-	[AM_CONDITIONAL([WX_BACKEND], [test "x$have_wx" = "xyes"])],
+	[AM_CONDITIONAL([wx_BACKEND], [test "x$have_wx" = "xyes"])],
 )])
 
 WANT_PACKAGE([DevIL], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])

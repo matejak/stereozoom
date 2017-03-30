@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include "stereozoom2.h"
+
+
 class Message
 {
 public:
@@ -36,6 +39,15 @@ public:
 };
 
 
+struct APtrComp
+{
+	bool operator () (const MessageRecord * lhs, const MessageRecord * rhs) const
+	{
+		return lhs->time_inserted < rhs->time_inserted;
+	}
+};
+
+
 class MessageService
 {
 public:
@@ -44,6 +56,12 @@ public:
 	MessageRecord * addRefreshableMessage(const char * msg, double time_to_live, MessageRecord * previous_message=nullptr);
 	void cleanOldMessages();
 	virtual void displayMessages() const = 0;
+	double convertTimeRemainingToAlpha(double ttl) const
+	{
+		double result = MIN(ttl / 2.0, 1.0);
+		return result * 0.8 + 0.2;
+	}
+
 	void purgeOldMessages();
 protected:
 	set<MessageRecord *, APtrComp> messages;

@@ -25,7 +25,9 @@
 #include "stereozoom2_internal.h"
 
 #include <cstdlib>
-#include "Image_group.h"
+#include "AllegroImageGroup.h"
+#include "ILLoader.h"
+
 
 void start()
 {
@@ -45,15 +47,14 @@ void finish()
 }
 
 
-stereozoom2::stereozoom2(const char * arguments)
+stereozoom2::stereozoom2(const char * arguments):
+	Expected(EXP_NONE), Grow_mode(GROW_DEFAULT)
 {
 	string args = arguments;	//not to destroy the passed string (that is moreover const)
 	//some init
-	Expected = EXP_NONE;
-	Grow_mode = GROW_DEFAULT;
 	copy_array<int,2>(0,Coords);
 	copy_array<int,2>(0,Matrix_size);
-	copy_array<int,2>(0,Max_coords);
+	copy_array<unsigned int,2>(0,Max_coords);
 
 	Resolution[0] = 300; Resolution[1] = 200;	//this is default resolution
 
@@ -72,12 +73,12 @@ stereozoom2::stereozoom2(const char * arguments)
 
 	start();
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
-		AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
-		AllegroUI ui(stereotuple);
-		ui.createBuffer();
+		AllegroSensitivity sensitivity;
+		AllegroUI ui(& sensitivity);
+		ui.powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
 		ILLoader loader;
 		for (unsigned int i = 0; i < Entries.size(); i++)
-			stereotuple.LoadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
+			ui.loadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
 		ui.mainLoop();
 	}
 	finish();
