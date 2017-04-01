@@ -1,6 +1,43 @@
 
+#define UI
+#include "module_interface.h"
+
 #include "AllegroImageGroup.h"
 #include "AllegroImage.h"
+
+
+void * PUBLIC(get_ui)()
+{
+	auto sensitivity = new AllegroSensitivity();
+	auto ret = new AllegroUI(sensitivity);
+	return reinterpret_cast<void *>(ret);
+}
+
+
+void PUBLIC(delete_ui)(void * loader)
+{
+	auto todelete = reinterpret_cast<AllegroUI *>(loader);
+	delete todelete->sensitivities;
+	delete todelete;
+}
+
+
+void PUBLIC(init)()
+{
+	allegro_init();
+
+	install_keyboard();
+	install_mouse();
+
+	install_timer();
+	set_alpha_blender();
+}
+
+
+void PUBLIC(exit)()
+{
+	allegro_exit();
+}
 
 
 void AllegroImageGrid::blit()
@@ -58,9 +95,6 @@ void AllegroImageGrid::loadImageWhere(const char * filename, int x, int y, const
 
 	view = new ViewWithRectangle(view_size[X], view_size[Y], image->width, image->height);
 	views[image_index] = view;
-
-	ChangeSetViewToOriginNoZoom change;
-	// change.transformView(view);
 }
 
 
@@ -283,14 +317,23 @@ vector<int> AllegroUI::processUserInput(vector<int> keystrokes)
 }
 
 
-void AllegroCrosshair::createNormal(unsigned int size)
+void AllegroCrosshair::drawCenteredHline(double start, double end, double r, double g, double b)
 {
-	// also creates a crosshair bitmap
-	if (our_crosshair == NULL)
+	int size = our_crosshair->w;
+	hline(our_crosshair, start * size, size / 2, end * size, makecol(r * 255, g * 255, b * 255));
+}
+
+
+void AllegroCrosshair::drawCenteredVline(double start, double end, double r, double g, double b)
+{
+	int size = our_crosshair->w;
+	vline(our_crosshair, size / 2, start * size, end * size, makecol(r * 255, g * 255, b * 255));
+}
+
+
+void AllegroCrosshair::prepare(unsigned int size)
+{
+	if (our_crosshair == nullptr)
 		our_crosshair = create_bitmap(size, size);
 	clear_to_color(our_crosshair, makecol(255,0,255));
-	drawCenteredCircle((our_crosshair->w * 2) / 3, 0, 0, 0);
-	drawCenteredCircle((our_crosshair->w * 1) / 3, 0, 0, 0);
-	hline(our_crosshair, 0, our_crosshair->h / 2, our_crosshair->w, makecol(255, 255, 255));
-	vline(our_crosshair, our_crosshair->w / 2, 0, our_crosshair->h, makecol(255, 255, 255));
 }

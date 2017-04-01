@@ -1,5 +1,11 @@
 #pragma once
 
+#include <set>
+using std::set;
+#include <string>
+using std::string;
+#include <chrono>
+using namespace std::chrono;
 
 #include "stereozoom2.h"
 
@@ -54,7 +60,6 @@ public:
 	virtual ~MessageService();
 	void addMessage(const char * msg, double time_to_live);
 	MessageRecord * addRefreshableMessage(const char * msg, double time_to_live, MessageRecord * previous_message=nullptr);
-	void cleanOldMessages();
 	virtual void displayMessages() const = 0;
 	double convertTimeRemainingToAlpha(double ttl) const
 	{

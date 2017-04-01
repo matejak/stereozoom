@@ -8,11 +8,6 @@
 class ILLoader: public Loader
 {
 public:
-	ILLoader()
-	{
-		ilInit();
-		ilEnable(IL_ORIGIN_SET);
-	}
 	void loadFromFileToImage(const char * filename, Image * result) const override;
 };
 

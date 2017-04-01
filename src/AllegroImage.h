@@ -1,5 +1,7 @@
 #pragma once
 
+#include <allegro.h>
+
 #include "Image.h"
 
 

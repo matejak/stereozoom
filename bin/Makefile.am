@@ -1,5 +1,6 @@
 NUL =
 
+pkglib_LTLIBRARIES = 
 bin_PROGRAMS = stereozoom2
 
 if wx_BACKEND
@@ -17,25 +18,41 @@ libstereozoom2_la_SOURCES = \
 	src/Rectangle.cpp \
 	src/Image.h \
 	src/Image.cpp \
+	src/MessageService.h \
+	src/MessageService.cpp \
 	src/stereozoom2.h \
 	src/stereozoom2.cpp \
 	src/stereozoom2_internal.h \
 	$(NUL)
 
 if allegro4_BACKEND
-libstereozoom2_la_SOURCES += \
+pkglib_LTLIBRARIES += allegro4.la
+
+allegro4_la_SOURCES = \
+	src/module_interface.h \
 	src/AllegroImage.h \
 	src/AllegroImage.cpp \
 	src/AllegroImageGroup.h \
 	src/AllegroImageGroup.cpp \
 	$(NUL)
+
+allegro4_la_LDFLAGS = -module
+allegro4_la_CPPFLAGS = -DMODULE_NAME=allegro4
+allegro4_la_LIBADD = $(allegro4_LIBS)
 endif
 
 if DevIL_BACKEND
-libstereozoom2_la_SOURCES += \
+pkglib_LTLIBRARIES += devil.la
+
+devil_la_SOURCES = \
+	src/module_interface.h \
 	src/ILLoader.h \
 	src/ILLoader.cpp \
 	$(NUL)
+
+devil_la_LDFLAGS = -module
+devil_la_CPPFLAGS = -DMODULE_NAME=devil
+devil_la_LIBADD = $(DevIL_LIBS)
 endif
 
 include_HEADERS = \
@@ -46,7 +63,7 @@ include_HEADERS = \
 	src/stereozoom2.h \
 	$(NUL)
 
-libstereozoom2_la_LIBADD = $(allegro4_LIBS) $(DevIL_LIBS)
+libstereozoom2_la_LIBADD = -lltdl
 
 stereozoom2_SOURCES = \
 	src/Change.h \
@@ -60,7 +77,7 @@ stereozoom2_SOURCES = \
 	src/stereozoom2_internal.h \
 	$(NUL)
 
-stereozoom2_LDADD = libstereozoom2.la $(allegro4_LIBS) 
+stereozoom2_LDADD = libstereozoom2.la
 
 gstereozoom2_SOURCES = \
 	src/Change.h \
@@ -82,7 +99,7 @@ gstereozoom2_SOURCES += \
 	$(NUL)
 endif
 
-gstereozoom2_LDADD = libstereozoom2.la $(WX_LIBS) $(allegro4_LIBS)
+gstereozoom2_LDADD = libstereozoom2.la $(WX_LIBS)
 
 AM_CPPFLAGS = $(WX_CPPFLAGS) 
 # the gstereozoom needs this to display the icon in the About dialog

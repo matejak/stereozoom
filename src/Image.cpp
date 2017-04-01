@@ -34,5 +34,3 @@ void Image::supplyData(unsigned char * rgbData, unsigned int width, unsigned int
 
 	mkImageDataStructure(rgbData);
 }
-
-

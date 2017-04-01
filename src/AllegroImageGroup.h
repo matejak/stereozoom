@@ -1,5 +1,7 @@
 #pragma once
 
+#include <allegro.h>
+
 #include "Image_group.h"
 
 
@@ -24,26 +26,30 @@ class AllegroCrosshair: public Crosshair
 {
 public:
 	AllegroCrosshair(BITMAP ** destination):
-		Crosshair(), dest_bitmap_ptr(destination), our_crosshair(0) {}
+		Crosshair(), dest_bitmap_ptr(destination), our_crosshair(nullptr) {}
 	virtual ~AllegroCrosshair()
 	{
-		if (our_crosshair)
+		if (our_crosshair != nullptr)
 		{
 			destroy_bitmap(our_crosshair);
 		}
-		our_crosshair = 0;
+		our_crosshair = nullptr;
 	}
-	virtual void createNormal(unsigned int size) override;
 	virtual void draw(int x, int y) const override
 	{
+		if (our_crosshair == nullptr)
+			return;
 		if (* dest_bitmap_ptr == nullptr) 
 			throw runtime_error("Attempted to draw a non-existing crosshair.");
 		draw_sprite(* dest_bitmap_ptr, our_crosshair, x - our_crosshair->w / 2.0, y - our_crosshair->h / 2.0);
 	}
 private:
-	void drawCenteredCircle(double radius, int col_r, int col_g, int col_b) override
+	void prepare(unsigned int size) override;
+	void drawCenteredHline(double start, double end, double r, double g, double b) override;
+	void drawCenteredVline(double start, double end, double r, double g, double b) override;
+	void drawCenteredCircle(double radius, double col_r, double col_g, double col_b) override
 	{
-		circle(our_crosshair, our_crosshair->w / 2, our_crosshair->h / 2, radius, makecol(col_r, col_g, col_b));
+		circle(our_crosshair, our_crosshair->w / 2, our_crosshair->h / 2, radius, makecol(255 * col_r, 255 * col_g, 255 * col_b));
 	}
 	BITMAP ** dest_bitmap_ptr;
 	BITMAP * our_crosshair;
@@ -97,7 +103,8 @@ class AllegroUI : public GenericUI
 {
 public:
 	AllegroUI(Sensitivity * sensitivities):
-		GenericUI(sensitivities), screen_buffer(0) {}
+		GenericUI(sensitivities), screen_buffer(0)
+	{}
 	~AllegroUI() 
 	{
 		clean();
@@ -117,7 +124,7 @@ public:
 		return ret;
 	}
 
-	void mainLoop()
+	void mainLoop() override
 	{
 		while(dont_stop)
 		{

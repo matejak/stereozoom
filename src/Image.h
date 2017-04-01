@@ -2,7 +2,6 @@
 
 #include "Rectangle.h"
 
-#include <allegro.h>
 #include <IL/il.h>
 #include <string>
 

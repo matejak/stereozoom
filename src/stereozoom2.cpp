@@ -25,26 +25,9 @@
 #include "stereozoom2_internal.h"
 
 #include <cstdlib>
+#include <ltdl.h>
 #include "AllegroImageGroup.h"
-#include "ILLoader.h"
-
-
-void start()
-{
-	allegro_init();
-
-	install_keyboard();
-	install_mouse();
-
-	install_timer();
-	set_alpha_blender();
-}
-
-
-void finish()
-{
-	allegro_exit();
-}
+#include "PluginLoaders.h"
 
 
 stereozoom2::stereozoom2(const char * arguments):
@@ -71,18 +54,27 @@ stereozoom2::stereozoom2(const char * arguments):
 		return;
 	}
 
-	start();
+	lt_dlinit();
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
-		AllegroSensitivity sensitivity;
-		AllegroUI ui(& sensitivity);
-		ui.powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
-		ILLoader loader;
+		auto ui_plugin = UILoader("allegro4");
+		ui_plugin.Load();
+		auto ui = ui_plugin.getUI();
+		ui->powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
+
+		auto im_plugin = LoaderLoader("devil");
+		im_plugin.Load();
+		Loader * loader = im_plugin.getLoader();
+
 		for (unsigned int i = 0; i < Entries.size(); i++)
-			ui.loadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
-		ui.mainLoop();
+			ui->loadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], loader);
+		ui->mainLoop();
+
+		im_plugin.deleteLoader(loader);
+		ui_plugin.deleteUI(ui);
 	}
-	finish();
+	lt_dlexit();
 }
+
 
 
 int stereozoom2::Parse_args(const char * input)

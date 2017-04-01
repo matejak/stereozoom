@@ -2,14 +2,8 @@
 
 #include <vector>
 using std::vector;
-#include <set>
-using std::set;
-#include <string>
-using std::string;
 #include <stdexcept>
 using std::runtime_error;
-#include <chrono>
-using namespace std::chrono;
 
 #include "MessageService.h"
 #include "stereozoom2.h"
@@ -58,16 +52,19 @@ class Crosshair
 {
 public:
 	virtual ~Crosshair() {}
-	virtual void createNormal(unsigned int size) = 0;
+	void createNormal(unsigned int size);
 	virtual void draw(int x, int y) const = 0;
 	void createFocused(unsigned int size)
 	{
 		createNormal(size);
-		drawCenteredCircle(size / 6, 255, 255, 0);
+		drawCenteredCircle(size / 6, 1, 1, 0);
 		drawCenteredCircle(size / 15, 0, 0, 0);
 	}
 protected:
-	virtual void drawCenteredCircle(double radius, int col_r, int col_g, int col_b) = 0;
+	virtual void drawCenteredCircle(double radius, double col_r, double col_g, double col_b) = 0;
+	virtual void prepare(unsigned int size) = 0;
+	virtual void drawCenteredHline(double start, double end, double r, double g, double b) = 0;
+	virtual void drawCenteredVline(double start, double end, double r, double g, double b) = 0;
 };
 
 
@@ -188,15 +185,16 @@ public:
 	virtual SpecializedMessageService * makeMessageService() = 0;
 	virtual ImageGrid * makeImageGrid(unsigned int n_horizontal, unsigned int n_vertical, unsigned int size_width, unsigned int size_height) = 0;
 	virtual void initGfxMode(unsigned int hres, unsigned int vres) = 0;
+	virtual void mainLoop() = 0;
 
 	void loadImageWhere(const char * filename, int x, int y, const Loader * loader)
 	{
 		stereotuple->loadImageWhere(filename, x, y, loader);
 	}
+	Sensitivity * sensitivities;
 
 protected:
 	SpecializedMessageService * message_service;
-	Sensitivity * sensitivities;
 	ImageGrid * stereotuple;
 
 	bool dont_stop;
