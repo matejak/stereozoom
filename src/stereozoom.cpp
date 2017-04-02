@@ -25,35 +25,22 @@
 #include "stereozoom_internal.h"
 
 #include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+#include <ltdl.h>
+#include "PluginLoaders.h"
+#include "stereozoom.h"
 #include "Image_group.h"
 
-void start()
-{
-	allegro_init();
 
-	install_keyboard();
-	install_mouse();
-
-	install_timer();
-	set_alpha_blender();
-}
-
-
-void finish()
-{
-	allegro_exit();
-}
-
-
-stereozoom::stereozoom(const char * arguments)
+stereozoom::stereozoom(const char * arguments):
+	Expected(EXP_NONE), Grow_mode(GROW_DEFAULT)
 {
 	string args = arguments;	//not to destroy the passed string (that is moreover const)
 	//some init
-	Expected = EXP_NONE;
-	Grow_mode = GROW_DEFAULT;
 	copy_array<int,2>(0,Coords);
 	copy_array<int,2>(0,Matrix_size);
-	copy_array<int,2>(0,Max_coords);
+	copy_array<unsigned int,2>(0,Max_coords);
 
 	Resolution[0] = 300; Resolution[1] = 200;	//this is default resolution
 
@@ -70,17 +57,25 @@ stereozoom::stereozoom(const char * arguments)
 		return;
 	}
 
-	start();
+	lt_dlinit();
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
-		AllegroImageGrid stereotuple(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
-		AllegroUI ui(stereotuple);
-		ui.createBuffer();
-		ILLoader loader;
+		auto ui_plugin = UILoader("allegro5");
+		ui_plugin.Load();
+		auto ui = ui_plugin.getUI();
+		ui->powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
+
+		auto im_plugin = LoaderLoader("devil");
+		im_plugin.Load();
+		Loader * loader = im_plugin.getLoader();
+
 		for (unsigned int i = 0; i < Entries.size(); i++)
-			stereotuple.LoadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], & loader);
-		ui.mainLoop();
+			ui->loadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], loader);
+		ui->mainLoop();
+
+		im_plugin.deleteLoader(loader);
+		ui_plugin.deleteUI(ui);
 	}
-	finish();
+	lt_dlexit();
 }
 
 

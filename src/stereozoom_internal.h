@@ -23,8 +23,4 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef  WANT_GUI
-#define ALLEGRO_NO_MAGIC_MAIN
-#endif // WANT_GUI
-
 #endif //STEREOZOOM2_INTERNAL_H_

@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include "stereozoom.h"
-#include <allegro.h>
 
 
 enum zoom_focus { MOUSE_POSITION, IMAGE_FOCUS, VIEW_FOCUS };

@@ -16,6 +16,7 @@ AC_SUBST([DATA_SUBDIR],
 # Checks for programs
 AC_PROG_CXX
 AC_PROG_CC
+PKG_PROG_PKG_CONFIG
 
 AM_PROG_AR
 AC_PROG_LIBTOOL
@@ -28,16 +29,49 @@ AS_IF([test "${host_os:0:5}" = "mingw"],
 		 [Define when building for Windows])
        windows_version="yes"])
 
+AC_ARG_ENABLE([gui], AS_HELP_STRING([--enable-gui], [Whether to attempt to build GUI frontends]), [], [enable_gui=auto])
+
+m4_define([WANT_PACKAGE], [m4_do(
+	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])
+],
+	[AS_IF([test "x$with_$1" != "xno"], [PKG_CHECK_MODULES([$1], [$4], [], [true])])
+],
+	[AS_IF([test "x$with_$1" = "xyes" -a "x$[$1_LIBS]" = "x"], [AC_MSG_ERROR([$3])])
+],
+	[AM_CONDITIONAL([$1_BACKEND], [test "x$[$1_LIBS]" != "x"])],
+)])
+
+
+m4_define([WANT_WX], [m4_do(
+	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])
+],
+	[AS_IF([test "x$with_$1" != "xno"], [AM_PATH_WXCONFIG(2.8.0, [have_wx='yes'])])
+],
+	[AS_IF([test "x$with_$1" = "xyes" -a "x$have_wx" != "xyes"], [AC_MSG_ERROR([$3])])
+],
+	[AM_CONDITIONAL([wx_BACKEND], [test "x$have_wx" = "xyes"])],
+)])
+
+WANT_PACKAGE([DevIL], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
+
+WANT_PACKAGE([allegro5], [Build with the Allegro backend], ["Usage of the Allegro5 backend has been specifically requested, but it seems that we can't find it"], [allegro-5], [ALLEGRO5_BACKEND])
+
+WANT_PACKAGE([allegro4], [Build with the legacy Allegro 4.x backend], ["Usage of the legacy Allegro 4.x backend has been specifically requested, but it seems that we can't find it"], [allegro < 5.0], [ALLEGRO4_BACKEND])
+
+WANT_WX([wx], [Build with the wxWidgets backend], ["Usage of the wxWidgets GUI has been specifically requested, but it seems that we can't find it"])
+
 AM_CONDITIONAL([WINDOWS_VERSION],
 	       [test "x$windows_version" = "xyes" ])
 
-# Checks for user preferences
-AC_ARG_ENABLE([gui], 
-	      [AS_HELP_STRING([--disable-gui], 
-			      [Disables build of wxwidgets GUI (default = yes)] )], 
-	      [], 
-	      [enable_gui="auto"])
+AM_CONDITIONAL([WANT_GUI], 
+	       [test "x$enable_gui" != "xno"]) 
 
+AC_LANG([C++])
+
+# Checks for header files.
+AC_CHECK_HEADERS([windows.h unistd.h])
+
+m4_ignore([
 # Checks for libraries.
 AC_CHECK_HEADER([allegro.h],
 		[],
@@ -68,31 +102,11 @@ AS_IF([test "x$have_allegro" != "xno" -a "x$have_allegro" != "xyes"],
                      LIBS="-lalleg42 $LIBS"]) ])
  
 AS_IF([test "x$have_allegro" != "xyes"],
-      [AC_MSG_ERROR([Unable to find Allegro game programming library 4.x, check out www.allegro.cc (or your distro repositories if you use a unix-like system)]) ])
-
-# If the user isn't against it, try to use wxwidgets, and ...
-AS_IF([test "x$enable_gui" != "xno"], 
-      [AM_PATH_WXCONFIG(3.0.0, [HAVE_WXWIDGETS=1]) ])
-
-# Define the symbol so that Allegro drops the "magic main" stuff and the user is reported on how the attempt to build GUI has ended
-AS_IF([test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" != "x1"], 
-      [enable_gui="no (suitable wxWidgets installation not found)"], 
-      [test "x$enable_gui" != "xno" -a "x$HAVE_WXWIDGETS" = "x1"], 
-      [AC_DEFINE([WANT_GUI], 
-		 1, 
-		 [Define if you want to build a wxWidgets GUI]) ])
+      [AC_MSG_ERROR([Unable to find Allegro game programming library 4.x, check out www.allegro.cc (or your distro repositories if you use a unix-like system)])])
 
 # ... subsequently declare we want to build the gui frontend
-AM_CONDITIONAL([WANT_GUI], 
-	       [test "x$HAVE_WXWIDGETS" = "x1"]) 
-
 AC_MSG_CHECKING([whether to build GUI frontend])
 AC_MSG_RESULT([$enable_gui])
-
-AC_LANG([C++])
-
-# Checks for header files.
-AC_CHECK_HEADERS([windows.h unistd.h])
 
 AC_CHECK_HEADER([IL/il.h],
 		[AC_CHECK_LIB([IL], 
@@ -107,6 +121,7 @@ AC_CHECK_HEADER([IL/il.h],
 AS_IF([test "x$have_IL" != "xyes"],
       [AC_MSG_ERROR([You don't have the IL/il.h header file (and/or the IL library). Make sure you have DevIL image loading library properly installed (see http://openil.sourceforge.net)]) ])
 
+])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL

@@ -80,7 +80,6 @@
  */
 
 #include "stereozoom_internal.h"
-#include <allegro.h>
 #include "stereozoom.h"
 
 int main(int argc, char * argv [])
@@ -91,4 +90,3 @@ int main(int argc, char * argv [])
 	stereozoom session(arguments.c_str());
 	return 0;
 }
-END_OF_MAIN()

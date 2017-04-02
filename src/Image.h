@@ -1,9 +1,7 @@
-#ifndef IMAGE_H_
-#define IMAGE_H_
+#pragma once
 
 #include "Rectangle.h"
 
-#include <allegro.h>
 #include <IL/il.h>
 #include <string>
 
@@ -26,45 +24,8 @@ protected:
 };
 
 
-class AllegroImage: public Image
-{
-public:
-	AllegroImage():Image(), bitmap(0) {}
-	virtual ~AllegroImage()
-	{
-		clean();
-	}
-	BITMAP * bitmap;
-	virtual bool isEmpty() const
-	{
-		return (bitmap == 0);
-	}
-protected:
-	virtual void mkImageDataStructure(unsigned char * rgbdata);
-	void clean();
-};
-
-
 class Loader
 {
 public:
 	virtual void loadFromFileToImage(const char * filename, Image * result) const = 0;
 };
-
-
-class ILLoader: public Loader
-{
-public:
-	ILLoader()
-	{
-		ilInit();
-		ilEnable(IL_ORIGIN_SET);
-	}
-	~ILLoader()
-	{
-	}
-	void loadFromFileToImage(const char * filename, Image * result) const;
-};
-
-
-#endif /*IMAGE_H_*/

@@ -1,5 +1,3 @@
-#include <allegro.h>
-
 #include "Change.h"
 
 
