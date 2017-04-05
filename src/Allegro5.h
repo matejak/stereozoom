@@ -69,10 +69,11 @@ public:
 			return;
 		if (* dest_bitmap_ptr == nullptr) 
 			throw runtime_error("Attempted to draw a non-existing crosshair.");
-		draw_sprite(* dest_bitmap_ptr, our_crosshair, x - our_crosshair->w / 2.0, y - our_crosshair->h / 2.0);
+		al_draw_bitmap(our_crosshair, x - size / 2.0, y - size / 2.0);
 	}
 private:
-	void prepare(unsigned int size) override;
+	void prepare() override;
+	void finish() override;
 	void drawCenteredHline(double start, double end, double r, double g, double b) override;
 	void drawCenteredVline(double start, double end, double r, double g, double b) override;
 	void drawCenteredCircle(double radius, double col_r, double col_g, double col_b) override
@@ -87,11 +88,8 @@ private:
 class AllegroMessageService: public SpecializedMessageService
 {
 public:
-	virtual ~AllegroMessageService() {}
-	AllegroMessageService(ALLEGRO_BITMAP ** screen_buffer_ptr):screen_buffer_ptr(screen_buffer_ptr) {}
 	void displayMessages() const override;
 private:
-	ALLEGRO_BITMAP ** screen_buffer_ptr;
 };
 
 
@@ -131,10 +129,11 @@ class AllegroUI : public GenericUI
 {
 public:
 	AllegroUI(Sensitivity * sensitivities):
-		GenericUI(sensitivities), screen_buffer(0), display(0)
+		GenericUI(sensitivities), screen_buffer(nullptr), display(nullptr)
 	{}
 	~AllegroUI() 
 	{
+		al_destroy_(display);
 		clean();
 	}
 
@@ -142,12 +141,12 @@ public:
 
 	virtual SpecializedMessageService * makeMessageService()
 	{
-		return new AllegroMessageService(& screen_buffer);
+		return new AllegroMessageService();
 	}
 
 	virtual ImageGrid * makeImageGrid(unsigned int n_horizontal, unsigned int n_vertical, unsigned int size_width, unsigned int size_height)
 	{
-		auto ret = new AllegroImageGrid(screen_buffer, n_horizontal, n_vertical, size_width, size_height);
+		auto ret = new AllegroImageGrid(n_horizontal, n_vertical, size_width, size_height);
 		ret->createCrosshairs();
 		return ret;
 	}
@@ -158,7 +157,7 @@ public:
 		{
 			draw();
 			message_service->purgeOldMessages();
-			rest(50);
+			al_rest(10);
 			
 			sensitivities->setBoostedStatus();
 			vector<int> keystrokes = pollForKeystrokes();
@@ -180,25 +179,20 @@ public:
 
 	void clean()
 	{
-		if (screen_buffer)
-		{
-			al_destroy_bitmap(screen_buffer);
-			screen_buffer = 0;
-		}
 	}
 	void draw()
 	{
-		clear_to_color(screen_buffer, al_map_rgb(0, 0, 0));
+		al_clear_to_color(al_map_rgb(0, 0, 0));
 		stereotuple->blit();
 
 		stereotuple->drawCrosshairs(mouse.x, mouse.y);
 		message_service->displayMessages();
-		blit(screen_buffer, screen, 0, 0, 0, 0, screen_buffer->w, screen_buffer->h);
+		al_flip_display();
 	}
 private:
 
-	ALLEGRO_BITMAP * screen_buffer;
 	ALLEGRO_DISPLAY * display;
+	ALLEGRO_BITMAP * screen_buffer;
 
 	ALLEGRO_KEYBOARD_STATE keyboard;
 	ALLEGRO_MOUSE_STATE mouse;

@@ -59,7 +59,7 @@ stereozoom::stereozoom(const char * arguments):
 
 	lt_dlinit();
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
-		auto ui_plugin = UILoader("allegro5");
+		auto ui_plugin = UILoader("allegro4");
 		ui_plugin.Load();
 		auto ui = ui_plugin.getUI();
 		ui->powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);

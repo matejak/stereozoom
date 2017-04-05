@@ -51,21 +51,26 @@ public:
 class Crosshair
 {
 public:
+	Crosshair():size(0) {}
 	virtual ~Crosshair() {}
 	void createNormal(unsigned int size);
 	virtual void draw(int x, int y) const = 0;
 	void createFocused(unsigned int size)
 	{
 		size = size;
-		createNormal(size);
-		drawCenteredCircle(size / 6, 1, 1, 0);
-		drawCenteredCircle(size / 15, 0, 0, 0);
+		prepare();
+		drawNormal();
+		drawFocused();
+		finish();
 	}
 protected:
+	void drawNormal();
+	void drawFocused();
 	virtual void drawCenteredCircle(double radius, double col_r, double col_g, double col_b) = 0;
-	virtual void prepare(unsigned int size) = 0;
+	virtual void prepare() = 0;
 	virtual void drawCenteredHline(double start, double end, double r, double g, double b) = 0;
 	virtual void drawCenteredVline(double start, double end, double r, double g, double b) = 0;
+	virtual void finish() {}
 
 	double size;
 };

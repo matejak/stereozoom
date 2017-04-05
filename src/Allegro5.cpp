@@ -80,11 +80,11 @@ void AllegroImageGrid::blit()
 
 		AllegroImage * image = (AllegroImage *)images[ii];
 		BlitData coords = views[ii]->getBlitData();
-		stretch_blit(image->bitmap, buffer, 
+		al_draw_scaled_bitmap(image->bitmap, 
 				coords.from_start[X], coords.from_start[Y],
 				coords.getFromSize()[X], coords.getFromSize()[Y],
 				coords.to_start[X] + horizontal_offset, coords.to_start[Y] + vertical_offset,
-				coords.getToSize()[X], coords.getToSize()[Y]
+				coords.getToSize()[X], coords.getToSize()[Y], 0
 			    );
 	}
 }
@@ -172,7 +172,7 @@ void AllegroMessageService::displayMessages() const
 			textout_ex(notice, font, rows[i].c_str(), 5, i * text_height(font) + 5, color, -1);
 		}
 		previous_row_end += row_break;
-		draw_trans_sprite(* screen_buffer_ptr, notice, row_break, previous_row_end);
+		draw_trans_sprite(notice, row_break, previous_row_end);
 		previous_row_end += current_row_height;
 		al_destroy_bitmap(notice);
 		rows.clear();
@@ -209,11 +209,10 @@ void AllegroUI::initGfxMode(unsigned int hres, unsigned int vres)
 {
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	display = al_create_display(hres, vres);
+	screen_buffer = al_get_backbuffer(display);
 
 	if (verbose)
 		printf("Trying to set resolution: %dx%d, ?? bpp\n", hres, vres);
-
-	screen_buffer = al_create_bitmap(hres, vres);
 }
 
 
@@ -231,7 +230,7 @@ vector<int> AllegroUI::pollForKeystrokes()
 void AllegroUI::processMouseDrag()
 {
 	bool boosting_input = false;
-	if (mouse_b & 1) //left button is pressed, someone is trying to drag...
+	if (al_mouse_button_down(& mouse, 1)) //left button is pressed, someone is trying to drag...
 	{
 		int dmouse_x, dmouse_y;
 		get_mouse_mickeys(& dmouse_x, & dmouse_y);
@@ -358,10 +357,16 @@ void AllegroCrosshair::drawCenteredVline(double start, double end, double r, dou
 }
 
 
-void AllegroCrosshair::prepare(unsigned int size)
+void AllegroCrosshair::prepare()
 {
 	if (our_crosshair == nullptr)
 		our_crosshair = al_create_bitmap(size, size);
 	al_set_target_bitmap(our_crosshair);
 	al_clear_to_color(al_map_rgb(255,0,255));
+}
+
+
+void AllegroCrosshair::finish()
+{
+	al_set_target_bitmap(* dest_bitmap_ptr);
 }

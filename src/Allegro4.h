@@ -19,6 +19,7 @@ public:
 		return (bitmap == 0);
 	}
 	BITMAP * bitmap;
+
 protected:
 	virtual void mkImageDataStructure(unsigned char * rgbdata) override;
 	void clean();
@@ -63,7 +64,7 @@ public:
 		draw_sprite(* dest_bitmap_ptr, our_crosshair, x - our_crosshair->w / 2.0, y - our_crosshair->h / 2.0);
 	}
 private:
-	void prepare(unsigned int size) override;
+	void prepare() override;
 	void drawCenteredHline(double start, double end, double r, double g, double b) override;
 	void drawCenteredVline(double start, double end, double r, double g, double b) override;
 	void drawCenteredCircle(double radius, double col_r, double col_g, double col_b) override

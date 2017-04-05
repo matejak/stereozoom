@@ -29,10 +29,24 @@
 
 void Crosshair::createNormal(unsigned int size)
 {
-	// also creates a crosshair bitmap
-	prepare(size);
+	size = size;
+	prepare();
+	drawNormal();
+	finish();
+}
+
+
+void Crosshair::drawNormal()
+{
 	drawCenteredCircle((size * 2) / 3, 0, 0, 0);
 	drawCenteredCircle((size * 1) / 3, 0, 0, 0);
 	drawCenteredVline(0, 1.0, 1.0, 1.0, 1.0);
 	drawCenteredHline(0, 1.0, 1.0, 1.0, 1.0);
+}
+
+
+void Crosshair::drawFocused()
+{
+	drawCenteredCircle(size / 6, 1, 1, 0);
+	drawCenteredCircle(size / 15, 0, 0, 0);
 }

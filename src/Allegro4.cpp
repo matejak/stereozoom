@@ -345,19 +345,17 @@ vector<int> AllegroUI::processUserInput(vector<int> keystrokes)
 
 void AllegroCrosshair::drawCenteredHline(double start, double end, double r, double g, double b)
 {
-	int size = our_crosshair->w;
 	hline(our_crosshair, start * size, size / 2, end * size, makecol(r * 255, g * 255, b * 255));
 }
 
 
 void AllegroCrosshair::drawCenteredVline(double start, double end, double r, double g, double b)
 {
-	int size = our_crosshair->w;
 	vline(our_crosshair, size / 2, start * size, end * size, makecol(r * 255, g * 255, b * 255));
 }
 
 
-void AllegroCrosshair::prepare(unsigned int size)
+void AllegroCrosshair::prepare()
 {
 	if (our_crosshair == nullptr)
 		our_crosshair = create_bitmap(size, size);
