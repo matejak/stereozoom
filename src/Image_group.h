@@ -57,7 +57,7 @@ public:
 	virtual void draw(int x, int y) const = 0;
 	void createFocused(unsigned int size)
 	{
-		size = size;
+		this->size = size;
 		prepare();
 		drawNormal();
 		drawFocused();
@@ -115,9 +115,9 @@ public:
 		return view_size * grid_shape;
 	}
 
-	void applyChangeToCurrent(Change * change)
+	void applyChangeToCurrent(Change * change, int mouse_x, int mouse_y)
 	{
-		valarray<unsigned int> current_view_xy = getCurrentViewCoords();
+		valarray<unsigned int> current_view_xy = getCurrentViewCoords(mouse_x, mouse_y);
 		applyChangeTo(change, views[xyToIndex(current_view_xy[X], current_view_xy[Y])]);
 	}
 
@@ -132,10 +132,10 @@ public:
 			applyChangeTo(change, views[ii]);
 	}
 
-	virtual valarray<int> getViewCoordinates() const = 0;
+	virtual valarray<int> getViewCoordinates(int mouse_x, int mouse_y) const = 0;
 
 protected:
-	virtual valarray<unsigned int> getCurrentViewCoords() const = 0;
+	virtual valarray<unsigned int> getCurrentViewCoords(int mouse_x, int mouse_y) const = 0;
 	void applyChangeTo(Change * change, ViewWithRectangle * view)
 	{
 		change->transformView(view);

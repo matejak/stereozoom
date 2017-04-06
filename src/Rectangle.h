@@ -1,11 +1,7 @@
-#ifndef RECTANGLE_H_
-#define RECTANGLE_H_
+#pragma once
 
 #include <cmath>
 #include "stereozoom.h"
-
-
-enum zoom_focus { MOUSE_POSITION, IMAGE_FOCUS, VIEW_FOCUS };
 
 
 class BlitData
@@ -183,6 +179,3 @@ private:
 		return drawToUpperBound() - drawToLowerBound();;
 	}
 };
-
-
-#endif /*RECTANGLE_H_*/

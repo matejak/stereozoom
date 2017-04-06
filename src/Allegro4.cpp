@@ -124,7 +124,7 @@ void AllegroImageGrid::loadImageWhere(const char * filename, int x, int y, const
 }
 
 
-valarray<int> AllegroImageGrid::getViewCoordinates() const
+valarray<int> AllegroImageGrid::getViewCoordinates(int mouse_x, int mouse_y) const
 {
 	valarray<int> local_mouse_position = XY<int>(mouse_x, mouse_y) % XY<int, unsigned int>(view_size);
 	return local_mouse_position;
@@ -254,7 +254,7 @@ void AllegroUI::processMouseZoom()
 	if (mouse_z) //if change of zoom occured
 	{
 		// TODO: pass the mouse coords along, get the right transform to view coords, apply the transform on the view.
-		ChangeZoomViewGeneral change = ChangeZoomViewGeneral(pow(sensitivities->get(OF_ZOOM, BY_MOUSE), mouse_z), stereotuple->getViewCoordinates());
+		ChangeZoomViewGeneral change = ChangeZoomViewGeneral(pow(sensitivities->get(OF_ZOOM, BY_MOUSE), mouse_z), stereotuple->getViewCoordinates(mouse_x, mouse_y));
 		stereotuple->applyChangeToAll(& change);
 		// TODO: Print_zoom();
 	}
@@ -334,7 +334,7 @@ vector<int> AllegroUI::processUserInput(vector<int> keystrokes)
 		}
 		if (local_change != nullptr)
 		{
-			stereotuple->applyChangeToCurrent(local_change);
+			stereotuple->applyChangeToCurrent(local_change, mouse_x, mouse_y);
 			delete local_change;
 			local_change = nullptr;
 		}

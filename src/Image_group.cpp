@@ -29,7 +29,7 @@
 
 void Crosshair::createNormal(unsigned int size)
 {
-	size = size;
+	this->size = size;
 	prepare();
 	drawNormal();
 	finish();

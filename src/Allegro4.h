@@ -106,10 +106,10 @@ public:
 	virtual void loadImageWhere(const char * filename, int x, int y, const Loader * loader) override;
 	virtual void blit() override;
 
-	valarray<int> getViewCoordinates() const override;
+	valarray<int> getViewCoordinates(int mouse_x, int mouse_y) const override;
 
 private:
-	virtual valarray<unsigned int> getCurrentViewCoords() const override
+	virtual valarray<unsigned int> getCurrentViewCoords(int mouse_x, int mouse_y) const override
 	{
 		return XY<unsigned int>(mouse_x, mouse_y) / view_size;
 	}

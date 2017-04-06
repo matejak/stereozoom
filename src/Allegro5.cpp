@@ -4,6 +4,9 @@
 #include "Allegro5.h"
 #include <allegro5/allegro_font.h>
 
+
+enum { NOT_DRAGGING, STARTING_DRAGGING, DRAGGING};
+
 void AllegroImage::clean()
 {
 	if (bitmap)
@@ -60,7 +63,6 @@ void PUBLIC(init)()
 
 	al_init_font_addon();
 	al_init_primitives_addon();
-	// set_alpha_blender();
 }
 
 
@@ -80,6 +82,7 @@ void AllegroImageGrid::blit()
 
 		AllegroImage * image = (AllegroImage *)images[ii];
 		BlitData coords = views[ii]->getBlitData();
+		// TODO: Make the rectangle use floats
 		al_draw_scaled_bitmap(image->bitmap, 
 				coords.from_start[X], coords.from_start[Y],
 				coords.getFromSize()[X], coords.getFromSize()[Y],
@@ -127,9 +130,9 @@ void AllegroImageGrid::loadImageWhere(const char * filename, int x, int y, const
 }
 
 
-valarray<int> AllegroImageGrid::getViewCoordinates() const
+valarray<int> AllegroImageGrid::getViewCoordinates(int mouse_x, int mouse_y) const
 {
-	valarray<int> local_mouse_position = XY<int>(mouse.x, mouse.y) % XY<int, unsigned int>(view_size);
+	valarray<int> local_mouse_position = XY<int>(mouse_x, mouse_y) % XY<int, unsigned int>(view_size);
 	return local_mouse_position;
 }
 
@@ -159,22 +162,17 @@ void AllegroMessageService::displayMessages() const
 		}
 		text += "\n";
 		relative_alpha = convertTimeRemainingToAlpha((* it)->getRemainingSeconds());
-		color = al_map_rgba(64, 64, 64, int(relative_alpha * 96));
-		current_row_height = rows.size() * text_height(font) + 10;
+		current_row_height = rows.size() * al_get_font_line_height(font) + 10;
 
-		// TODO: This should be part of a yet-to-be-introduced AllegroMessageRecord
-		ALLEGRO_BITMAP * notice = al_create_bitmap(max_row_len * text_length(font, "@") + 10, current_row_height);
-		al_set_target_bitmap(notice);
-		al_clear_to_color(color);
+		color = al_map_rgba(64, 64, 64, int(relative_alpha * 96));
+		al_draw_filled_rectangle(row_break, previous_row_end, row_break + max_row_len * al_get_text_width(font, "@") + 10, previous_row_end + current_row_height, color);
+		color = al_map_rgba(255,255,255, int(relative_alpha * 192));
 		for (unsigned int i = 0; i < rows.size(); i++)
 		{
-			color = al_map_rgba(255,255,255, int(relative_alpha * 192));
-			textout_ex(notice, font, rows[i].c_str(), 5, i * text_height(font) + 5, color, -1);
+			al_draw_text(font, color, 5, previous_row_end + i * al_get_font_line_height(font) + 5, ALLEGRO_ALIGN_LEFT, rows[i].c_str());
 		}
 		previous_row_end += row_break;
-		draw_trans_sprite(notice, row_break, previous_row_end);
 		previous_row_end += current_row_height;
-		al_destroy_bitmap(notice);
 		rows.clear();
 	}
 }
@@ -210,57 +208,86 @@ void AllegroUI::initGfxMode(unsigned int hres, unsigned int vres)
 	al_set_new_display_flags(ALLEGRO_WINDOWED);
 	display = al_create_display(hres, vres);
 	screen_buffer = al_get_backbuffer(display);
+	al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
+	al_hide_mouse_cursor(display);
 
 	if (verbose)
 		printf("Trying to set resolution: %dx%d, ?? bpp\n", hres, vres);
 }
 
 
-vector<int> AllegroUI::pollForKeystrokes()
+void AllegroUI::processEvent(ALLEGRO_EVENT & event)
 {
-	vector<int> result;
-	while(keypressed())
+	if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN
+	|| event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP
+	)
 	{
-		result.push_back(readkey() >> 8);
+		processMouseDrag(event);
 	}
-	return result;
-}
-
-
-void AllegroUI::processMouseDrag()
-{
-	bool boosting_input = false;
-	if (al_mouse_button_down(& mouse, 1)) //left button is pressed, someone is trying to drag...
+	else if (event.type == ALLEGRO_EVENT_MOUSE_AXES)
 	{
-		int dmouse_x, dmouse_y;
-		get_mouse_mickeys(& dmouse_x, & dmouse_y);
-		if (dragging_now)
+		if (event.mouse.dz != 0)
 		{
-			double base_sensitivity = sensitivities->get(OF_SHIFT, BY_MOUSE);
-			ChangeDrag change = ChangeDrag(- base_sensitivity * dmouse_x, - base_sensitivity * dmouse_y);
-			stereotuple->applyChangeToAll(& change);
+			applyMouseZoom(event.mouse.x, event.mouse.y, event.mouse.dz);
 		}
-		// get_mouse_mickeys() will reset the counter, so we won't get garbage from it next time. 
-		dragging_now = true;
+		else
+		{
+			processMouseDrag(event);
+		}
 	}
-	else
+	else if (event.type == ALLEGRO_EVENT_KEY_DOWN)
 	{
-		dragging_now = false;
+		vector<int> keystrokes;
+		keystrokes.push_back(event.keyboard.keycode);
+		keystrokes = processUIControl(keystrokes);
+		keystrokes = processUserInput(keystrokes);
 	}
 }
 
 
-void AllegroUI::processMouseZoom()
+void AllegroUI::processMouseDrag(ALLEGRO_EVENT & evt)
 {
-	bool boosting_input = false;
-	if (mouse.z) //if change of zoom occured
+	if (evt.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
 	{
-		// TODO: pass the mouse coords along, get the right transform to view coords, apply the transform on the view.
-		ChangeZoomViewGeneral change = ChangeZoomViewGeneral(pow(sensitivities->get(OF_ZOOM, BY_MOUSE), mouse.z), stereotuple->getViewCoordinates());
-		stereotuple->applyChangeToAll(& change);
-		// TODO: Print_zoom();
+		if (evt.mouse.button == 1)
+		{
+			dragging = STARTING_DRAGGING;
+		}
 	}
-	al_set_mouse_z(0); // just in order to detect another zoom change correctly
+	else if (evt.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+	{
+		if (evt.mouse.button == 1)
+		{
+			dragging = NOT_DRAGGING;
+		}
+	}
+	else if (evt.type == ALLEGRO_EVENT_MOUSE_AXES)
+	{
+		if (dragging == DRAGGING)
+		{
+			applyMouseDrag(evt.mouse.dx, evt.mouse.dy);
+		}
+		else if (dragging == STARTING_DRAGGING)
+		{
+			dragging = DRAGGING;
+		}
+	}
+}
+
+
+void AllegroUI::applyMouseDrag(int dmouse_x, int dmouse_y)
+{
+	double base_sensitivity = sensitivities->get(OF_SHIFT, BY_MOUSE);
+	ChangeDrag change = ChangeDrag(- base_sensitivity * dmouse_x, - base_sensitivity * dmouse_y);
+	stereotuple->applyChangeToAll(& change);
+}
+
+
+void AllegroUI::applyMouseZoom(int x, int y, int dz)
+{
+	ChangeZoomViewGeneral change = ChangeZoomViewGeneral(pow(sensitivities->get(OF_ZOOM, BY_MOUSE), dz), stereotuple->getViewCoordinates(x, y));
+	stereotuple->applyChangeToAll(& change);
+	// TODO: Print_zoom();
 }
 
 
@@ -336,7 +363,7 @@ vector<int> AllegroUI::processUserInput(vector<int> keystrokes)
 		}
 		if (local_change != nullptr)
 		{
-			stereotuple->applyChangeToCurrent(local_change);
+			stereotuple->applyChangeToCurrent(local_change, mouse.x, mouse.y);
 			delete local_change;
 			local_change = nullptr;
 		}
@@ -362,7 +389,7 @@ void AllegroCrosshair::prepare()
 	if (our_crosshair == nullptr)
 		our_crosshair = al_create_bitmap(size, size);
 	al_set_target_bitmap(our_crosshair);
-	al_clear_to_color(al_map_rgb(255,0,255));
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 }
 
 

@@ -2,6 +2,7 @@
 
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
 
 #include "Image.h"
 #include "Image_group.h"
@@ -69,7 +70,7 @@ public:
 			return;
 		if (* dest_bitmap_ptr == nullptr) 
 			throw runtime_error("Attempted to draw a non-existing crosshair.");
-		al_draw_bitmap(our_crosshair, x - size / 2.0, y - size / 2.0);
+		al_draw_bitmap(our_crosshair, x - size / 2.0, y - size / 2.0, 0);
 	}
 private:
 	void prepare() override;
@@ -88,8 +89,17 @@ private:
 class AllegroMessageService: public SpecializedMessageService
 {
 public:
+	AllegroMessageService()
+	{
+		font = al_create_builtin_font();
+	}
+	~AllegroMessageService()
+	{
+		al_destroy_font(font);
+	}
 	void displayMessages() const override;
 private:
+	ALLEGRO_FONT * font;
 };
 
 
@@ -112,13 +122,15 @@ public:
 	virtual void loadImageWhere(const char * filename, int x, int y, const Loader * loader) override;
 	virtual void blit() override;
 
-	valarray<int> getViewCoordinates() const override;
+	valarray<int> getViewCoordinates(int mouse_x, int mouse_y) const override;
 
 private:
-	virtual valarray<unsigned int> getCurrentViewCoords() const override
+	valarray<unsigned int> getCurrentViewCoords(int mouse_x, int mouse_y) const override
 	{
-		return XY<unsigned int>(mouse.x, mouse.y) / view_size;
+		auto ret = XY<unsigned int>(mouse_x, mouse_y) / view_size;
+		return ret;
 	}
+
 	ALLEGRO_BITMAP * buffer;
 	AllegroCrosshair normal_crosshair;
 	AllegroCrosshair focused_crosshair;
@@ -129,11 +141,11 @@ class AllegroUI : public GenericUI
 {
 public:
 	AllegroUI(Sensitivity * sensitivities):
-		GenericUI(sensitivities), screen_buffer(nullptr), display(nullptr)
+		GenericUI(sensitivities), screen_buffer(nullptr), display(nullptr), events(nullptr)
 	{}
 	~AllegroUI() 
 	{
-		al_destroy_(display);
+		al_destroy_display(display);
 		clean();
 	}
 
@@ -146,40 +158,55 @@ public:
 
 	virtual ImageGrid * makeImageGrid(unsigned int n_horizontal, unsigned int n_vertical, unsigned int size_width, unsigned int size_height)
 	{
-		auto ret = new AllegroImageGrid(n_horizontal, n_vertical, size_width, size_height);
+		auto ret = new AllegroImageGrid(screen_buffer, n_horizontal, n_vertical, size_width, size_height);
 		ret->createCrosshairs();
 		return ret;
 	}
 
+	void processMouseEvent(ALLEGRO_EVENT & evt);
+
 	void mainLoop() override
 	{
+		al_set_target_bitmap(screen_buffer);
+		events = al_create_event_queue();
+		al_register_event_source(events, al_get_keyboard_event_source());
+		al_register_event_source(events, al_get_mouse_event_source());
+
+		ALLEGRO_EVENT event;
 		while(dont_stop)
 		{
 			draw();
-			message_service->purgeOldMessages();
-			al_rest(10);
-			
+			al_wait_for_event(events, & event);
+			// TODO: Optimize events processing
+			// aggregate keypresses and mouse moves
+
+			al_get_mouse_state(& mouse);
+			al_get_keyboard_state(& keyboard);
 			sensitivities->setBoostedStatus();
-			vector<int> keystrokes = pollForKeystrokes();
-			keystrokes = processUIControl(keystrokes);
-			keystrokes = processUserInput(keystrokes);
-			processMouseZoom();
-			processMouseDrag();
+			message_service->purgeOldMessages();
+
+			processEvent(event);
+
+			al_rest(0.01);
 		}
+		draw();
+		al_destroy_event_queue(events);
 	}
 
 	vector<int> processUIControl(vector<int>);
 	vector<int> processUserInput(vector<int>);
-	vector<int> pollForKeystrokes();
 
-	void processMouseDrag();
-	void processMouseZoom();
+	void applyMouseDrag(int dx, int dy);
+	void applyMouseZoom(int x, int y, int z);
+	void processEvent(ALLEGRO_EVENT & event);
+	void processMouseDrag(ALLEGRO_EVENT & event);
 
 	void printHelp();
 
 	void clean()
 	{
 	}
+
 	void draw()
 	{
 		al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -194,6 +221,10 @@ private:
 	ALLEGRO_DISPLAY * display;
 	ALLEGRO_BITMAP * screen_buffer;
 
+	ALLEGRO_EVENT_QUEUE * events;
+
 	ALLEGRO_KEYBOARD_STATE keyboard;
 	ALLEGRO_MOUSE_STATE mouse;
+
+	int dragging;
 };

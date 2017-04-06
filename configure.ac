@@ -54,7 +54,7 @@ m4_define([WANT_WX], [m4_do(
 
 WANT_PACKAGE([DevIL], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
 
-WANT_PACKAGE([allegro5], [Build with the Allegro backend], ["Usage of the Allegro5 backend has been specifically requested, but it seems that we can't find it"], [allegro-5], [ALLEGRO5_BACKEND])
+WANT_PACKAGE([allegro5], [Build with the Allegro backend], ["Usage of the Allegro5 backend has been specifically requested, but it seems that we can't find it"], [allegro-5 allegro_primitives-5 allegro_font-5], [ALLEGRO5_BACKEND])
 
 WANT_PACKAGE([allegro4], [Build with the legacy Allegro 4.x backend], ["Usage of the legacy Allegro 4.x backend has been specifically requested, but it seems that we can't find it"], [allegro < 5.0], [ALLEGRO4_BACKEND])
 
