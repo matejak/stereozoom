@@ -29,14 +29,12 @@ protected:
 class AllegroSensitivity: public Sensitivity
 {
 public:
-	void setBoostedStatus(ALLEGRO_KEYBOARD_STATE & keyboard)
-	{
-		shift_on = al_key_down(& keyboard, ALLEGRO_KEYMOD_SHIFT);
-		setBoostedStatus();
-	}
-
 	void setBoostedStatus() override
 	{
+		al_get_keyboard_state(& keyboard);
+		bool l_shift_on = al_key_down(& keyboard, ALLEGRO_KEY_LSHIFT);
+		bool r_shift_on = al_key_down(& keyboard, ALLEGRO_KEY_RSHIFT);
+		bool shift_on = l_shift_on || r_shift_on;
 		if (shift_on)
 		{
 			boosted = true;
@@ -47,7 +45,7 @@ public:
 		}
 	}
 private:
-	bool shift_on;
+	ALLEGRO_KEYBOARD_STATE keyboard;
 };
 
 
@@ -181,7 +179,6 @@ public:
 			// aggregate keypresses and mouse moves
 
 			al_get_mouse_state(& mouse);
-			al_get_keyboard_state(& keyboard);
 			sensitivities->setBoostedStatus();
 			message_service->purgeOldMessages();
 
@@ -223,7 +220,6 @@ private:
 
 	ALLEGRO_EVENT_QUEUE * events;
 
-	ALLEGRO_KEYBOARD_STATE keyboard;
 	ALLEGRO_MOUSE_STATE mouse;
 
 	int dragging;

@@ -22,6 +22,8 @@ void AllegroImage::mkImageDataStructure(unsigned char * rgbdata)
 {
 	clean();
 	bitmap = al_create_bitmap(width, height);
+	auto bitmap_format = al_get_bitmap_format(bitmap);
+	al_lock_bitmap(bitmap, bitmap_format, ALLEGRO_LOCK_WRITEONLY);
 	al_set_target_bitmap(bitmap);
 	ALLEGRO_COLOR color;
 	int color_pos;
@@ -35,6 +37,7 @@ void AllegroImage::mkImageDataStructure(unsigned char * rgbdata)
 			al_put_pixel(ii, height - jj - 1, color);
 		}
 	}
+	al_unlock_bitmap(bitmap);
 }
 
 
