@@ -1,6 +1,10 @@
 *~
 build/
 
+# generated from .vala
+src/gstereozoom.c
+gstereozoom_vala.stamp
+
 # the Autoconf + Automake stuff
 aclocal.m4
 autom4te.cache/

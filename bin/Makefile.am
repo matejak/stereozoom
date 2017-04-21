@@ -21,6 +21,7 @@ gstereozoom_LDADD = $(GTK_LIBS)
 gstereozoom_CPPFLAGS = $(GTK_CFLAGS) 
 gstereozoom_VALAFLAGS = --pkg gtk+-3.0 --target-glib 2.38 --gresources $(abs_top_srcdir)/rsrc/gstereozoom.xml
 # the gstereozoom needs this to display the icon in the About dialog
+
 gstereozoom_CPPFLAGS += -D'DATADIR(append)=TO_STRING($(datadir)/@DATA_SUBDIR@/append)'
 gstereozoom_LDFLAGS = -rdynamic
 endif
@@ -121,8 +122,12 @@ wxstereozoom_SOURCES = \
 	$(NUL)
 
 
+gstereozoom-resources.c: ../rsrc/gstereozoom.xml ../rsrc/gstereozoom-image_panel.glade
+	glib-compile-resources $< --target=$@ --sourcedir=$(srcdir)/rsrc --c-name _my --generate-source
+
 gstereozoom_SOURCES = \
 	src/gstereozoom.vala \
+	gstereozoom-resources.c \
 	$(NUL)
 
 if WINDOWS_VERSION
