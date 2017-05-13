@@ -1,5 +1,6 @@
 <gresources>
 	<gresource prefix="/org/gnome/gstereozoom">
 		<file compressed="true" preprocess="xml-stripblanks">gstereozoom-image_panel.glade</file>
+		<file compressed="true" preprocess="xml-stripblanks">gstereozoom-main_window.glade</file>
 	</gresource>
 </gresources>

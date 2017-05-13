@@ -122,7 +122,7 @@ wxstereozoom_SOURCES = \
 	$(NUL)
 
 
-gstereozoom-resources.c: ../rsrc/gstereozoom.xml ../rsrc/gstereozoom-image_panel.glade
+gstereozoom-resources.c: ../rsrc/gstereozoom.xml ../rsrc/gstereozoom-main_window.glade ../rsrc/gstereozoom-image_panel.glade
 	glib-compile-resources $< --target=$@ --sourcedir=$(srcdir)/rsrc --c-name _my --generate-source
 
 gstereozoom_SOURCES = \

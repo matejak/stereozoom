@@ -1,12 +1,4 @@
-using Gtk;
-
-public void on_main_window_destroy (Window source) {
-	/* When window close signal received */
-	Gtk.main_quit ();
-}
-
-
-public void chosen_image(Window source) {
+public void chosen_image(Gtk.Window source) {
 	return;
 }
 
@@ -30,14 +22,14 @@ Gdk.Pixbuf scale_pixbuf(Gdk.Pixbuf pixbuf, int dest_width, int dest_height) {
 
 
 [GtkTemplate (ui = "/org/gnome/gstereozoom/gstereozoom-image_panel.glade")]
-public class image_panel : Frame {
+public class image_panel : Gtk.Frame {
 	[GtkChild]
-	private Image image;
+	private Gtk.Image image;
 
 	private Gdk.Pixbuf bitmap;
 
 	[GtkCallback]
-	private void chosen_image(FileChooserButton chooser) {
+	private void chosen_image(Gtk.FileChooserButton chooser) {
 		var fname = chooser.get_filename();
 		this.loadImage(fname);
 	}
@@ -55,7 +47,7 @@ public class image_panel : Frame {
 	}
 
 	private void scaleImageSoItFits() {
-		Allocation allocation;
+		Gtk.Allocation allocation;
 		this.image.get_allocation(out allocation);
 		var pixbuf = scale_pixbuf(this.bitmap, allocation.width, allocation.height);
 		this.image.set_from_pixbuf(pixbuf);
@@ -63,8 +55,16 @@ public class image_panel : Frame {
 }
 
 
-Grid get_grid(int width, int height) {
-	var ret = new Grid();
+[GtkTemplate (ui = "/org/gnome/gstereozoom/gstereozoom-main_window.glade")]
+public class main_window : Gtk.ApplicationWindow {
+	public main_window(Gtk.Application app) {
+		Object(application: app);
+	}
+}
+
+
+Gtk.Grid get_grid(int width, int height) {
+	var ret = new Gtk.Grid();
 	for (int i = 0; i < width; i++)
 		ret.insert_column(0);
 	for (int i = 0; i < height; i++)
@@ -75,25 +75,29 @@ Grid get_grid(int width, int height) {
 }
 
 
-int main (string[] args) {
-	Gtk.init (ref args);
-
-	var builder = new Builder ();
-	/* Getting the glade file */
-	builder.add_from_file ("gstereozoom.glade");
-	builder.connect_signals (null);
-	var window = builder.get_object ("main_window") as Window;
-	// var main_grid = builder.get_object ("images_grid") as Grid;
-	var main_grid = get_grid(2, 1);
-	window.add(main_grid);
-	for (int i = 0; i < 2; i++)
-	{
-		var panel = new image_panel();
-		main_grid.attach(panel, i, 0);
-		panel.expand = true;
+class ExampleApp : Gtk.Application {
+	protected override void activate () {
+		var builder = new Gtk.Builder();
+		/* Getting the glade file */
+		builder.add_from_file ("gstereozoom.glade");
+		builder.connect_signals (null);
+		var window = new main_window(this);
+		var main_grid = get_grid(2, 1);
+		window.add(main_grid);
+		for (int i = 0; i < 2; i++) {
+			var panel = new image_panel();
+			main_grid.attach(panel, i, 0);
+			panel.expand = true;
+		}
+		window.show_all ();
 	}
-	window.show_all ();
-	Gtk.main ();
 
-	return 0;
+	public ExampleApp () {
+		Object ();
+	}
+
+	public static int main (string[] args) {
+		ExampleApp app = new ExampleApp();
+		return app.run(args);
+	}
 }
