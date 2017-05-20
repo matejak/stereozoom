@@ -32,6 +32,7 @@ public class image_panel : Gtk.Frame {
 	private void chosen_image(Gtk.FileChooserButton chooser) {
 		var fname = chooser.get_filename();
 		this.loadImage(fname);
+		chooser.set_title(fname);
 	}
 
 	[GtkCallback]
@@ -69,9 +70,43 @@ Gtk.Grid get_grid(int width, int height) {
 		ret.insert_column(0);
 	for (int i = 0; i < height; i++)
 		ret.insert_row(0);
-	ret.set_row_homogeneous(true);
-	ret.set_column_homogeneous(true);
+	// ret.set_row_homogeneous(true);
+	// ret.set_column_homogeneous(true);
 	return ret;
+}
+
+
+class PanelArrangement
+{
+	public PanelArrangement(int width, int height)
+	{
+		panels = new image_panel[width, height];
+	}
+
+	public void resize(int resize_width, int resize_height)
+	{
+		int new_width = int.max(panels.length[0], resize_width);
+		int new_height = int.max(panels.length[1], resize_height);
+		var old_panels = panels;
+		panels = new image_panel[new_width, new_height];
+
+	}
+
+	private void copy_panels_over(image_panel * [,] to_copy)
+	{
+		for (int ii = 0; ii < to_copy.length[0]; ii++)
+			for (int jj = 0; jj < to_copy.length[1]; jj++)
+				panels[ii, jj] = to_copy[ii, jj];
+	}
+
+	private void init_to_null()
+	{
+		for (int ii = 0; ii < panels.length[0]; ii++)
+			for (int jj = 0; jj < panels.length[1]; jj++)
+				panels[ii, jj] = null;
+	}
+
+	private image_panel * [,] panels;
 }
 
 

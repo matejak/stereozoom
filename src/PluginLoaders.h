@@ -8,12 +8,12 @@ using std::string;
 class Loader;
 class GenericUI;
 
-class PluginLoader
+class PluginBase
 {
 public:
-	PluginLoader(const char * path):
+	PluginBase(const char * path):
 		handle(nullptr), path(path), init(nullptr), exit(nullptr){}
-	virtual ~PluginLoader()
+	virtual ~PluginBase()
 	{
 		if (handle != nullptr)
 		{
@@ -43,11 +43,11 @@ protected:
 };
 
 
-class LoaderLoader: public PluginLoader
+class LoaderLoader: public PluginBase
 {
 public:
 	LoaderLoader(const char * path):
-		PluginLoader(path), loader(nullptr), destroyer(nullptr) {}
+		PluginBase(path), loader(nullptr), destroyer(nullptr) {}
 	Loader * getLoader()
 	{
 		return loader();
@@ -69,11 +69,11 @@ private:
 };
 
 
-class UILoader: public PluginLoader
+class UILoader: public PluginBase
 {
 public:
 	UILoader(const char * path):
-		PluginLoader(path), loader(nullptr), destroyer(nullptr) {}
+		PluginBase(path), loader(nullptr), destroyer(nullptr) {}
 	GenericUI * getUI()
 	{
 		return loader();
