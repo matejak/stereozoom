@@ -19,6 +19,9 @@ AC_PROG_CC
 PKG_PROG_PKG_CONFIG
 
 AM_PROG_AR
+AM_PROG_VALAC([0.34], [have_valac='yes'])
+AM_PATH_WXCONFIG(2.8.0, [have_wx='yes'])
+PKG_CHECK_MODULES([GTK], [gtk+-3.0], [have_gtk='yes'], [true])
 AC_PROG_LIBTOOL
 LT_PROG_RC
 
@@ -42,15 +45,13 @@ m4_define([WANT_PACKAGE], [m4_do(
 )])
 
 
-m4_define([WANT_WX], [m4_do(
+m4_define([WANT_FRONTEND], [m4_do(
 	[AC_ARG_WITH([$1], AS_HELP_STRING([--with-$1], [$2]), [], [enable_$1='auto'])
 ],
-	[AS_IF([test "x$with_$1" != "xno"], [AM_PATH_WXCONFIG(2.8.0, [have_wx='yes'])])
+	[AS_IF([test "x$with_$1" = "xyes" -a "x$have_$1" != "xyes"], [AC_MSG_ERROR([$3])])
 ],
-	[AS_IF([test "x$with_$1" = "xyes" -a "x$have_wx" != "xyes"], [AC_MSG_ERROR([$3])])
-],
-	[AM_CONDITIONAL([wx_BACKEND], [test "x$have_wx" = "xyes"])],
 )])
+
 
 WANT_PACKAGE([DevIL], [Build with the DevIL image loader], ["Usage of the DevIL loader has been specifically requested, but it seems that we can't find it"], [IL], [DEVIL_LOADER])
 
@@ -58,7 +59,11 @@ WANT_PACKAGE([allegro5], [Build with the Allegro backend], ["Usage of the Allegr
 
 WANT_PACKAGE([allegro4], [Build with the legacy Allegro 4.x backend], ["Usage of the legacy Allegro 4.x backend has been specifically requested, but it seems that we can't find it"], [allegro < 5.0], [ALLEGRO4_BACKEND])
 
-WANT_WX([wx], [Build with the wxWidgets backend], ["Usage of the wxWidgets GUI has been specifically requested, but it seems that we can't find it"])
+WANT_FRONTEND([wx], [Build with the wxWidgets backend], ["Usage of the wxWidgets GUI has been specifically requested, but it seems that we can't find it"])
+AM_CONDITIONAL([wx_BACKEND], [test "x$with_wx" != 'xno' -a "x$have_wx" = "xyes"])
+
+WANT_FRONTEND([gtk], [Build with the GTK backend], ["Usage of the GTK GUI has been specifically requested, but it seems that we can't find it"])
+AM_CONDITIONAL([gtk_BACKEND], [test "x$with_gtk" != 'xno' -a "x$have_gtk" = "xyes" -a "x$have_valac" = 'xyes'])
 
 AM_CONDITIONAL([WINDOWS_VERSION],
 	       [test "x$windows_version" = "xyes" ])

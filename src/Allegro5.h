@@ -183,6 +183,11 @@ public:
 			message_service->purgeOldMessages();
 
 			processEvent(event);
+			while (! al_event_queue_is_empty(events))
+			{
+				al_get_next_event(events, & event);
+				processEvent(event);
+			}
 
 			al_rest(0.01);
 		}
