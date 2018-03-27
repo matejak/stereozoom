@@ -214,7 +214,7 @@ void AllegroUI::initGfxMode(unsigned int hres, unsigned int vres)
 	al_set_blender(ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_INVERSE_ALPHA);
 	al_hide_mouse_cursor(display);
 
-	if (verbose)
+	if (false)
 		printf("Trying to set resolution: %dx%d, ?? bpp\n", hres, vres);
 }
 

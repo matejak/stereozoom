@@ -57,23 +57,37 @@ stereozoom::stereozoom(const char * arguments):
 		return;
 	}
 
-	lt_dlinit();
+	int ltdl_not_ok = lt_dlinit();
+	if (ltdl_not_ok)
+	{
+		fprintf(stderr, "Error initializing required component ltdl: %s, bailing out.\n", lt_dlerror());
+		return;
+	}
 	{// we need  stereopair to be destroyed before calling allegro_exit(); this is why this block is here...
-		auto ui_plugin = UILoader("allegro5");
-		ui_plugin.Load();
-		auto ui = ui_plugin.getUI();
-		ui->powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
+		try
+		{
+			auto ui_plugin = UILoader("/home/matej/git/stereozoom/build/allegro5");
+			ui_plugin.Load();
+			auto ui = ui_plugin.getUI();
+			ui->powerOn(Max_coords[0] + 1, Max_coords[1] + 1, Resolution[0], Resolution[1]);
 
-		auto im_plugin = LoaderLoader("devil");
-		im_plugin.Load();
-		Loader * loader = im_plugin.getLoader();
+			auto im_plugin = LoaderLoader("devil");
+			im_plugin.Load();
+			Loader * loader = im_plugin.getLoader();
 
-		for (unsigned int i = 0; i < Entries.size(); i++)
-			ui->loadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], loader);
-		ui->mainLoop();
+			for (unsigned int i = 0; i < Entries.size(); i++)
+				ui->loadImageWhere(Entries[i].Filename.c_str(), Entries[i].Coords[0], Entries[i].Coords[1], loader);
+			ui->mainLoop();
 
-		im_plugin.deleteLoader(loader);
-		ui_plugin.deleteUI(ui);
+			im_plugin.deleteLoader(loader);
+			ui_plugin.deleteUI(ui);
+		}
+		catch (const runtime_error & e)
+		{
+
+			fprintf(stderr, "Error loading UI for %s: %s\n", "allegro5", e.what());
+			return;
+		}
 	}
 	lt_dlexit();
 }

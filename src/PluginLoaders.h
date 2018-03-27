@@ -1,7 +1,10 @@
 #pragma once
 
+#include <sstream>
 #include <string>
 using std::string;
+#include <stdexcept>
+using std::runtime_error;
 #include <ltdl.h>
 
 
@@ -25,7 +28,16 @@ public:
 
 	void Load()
 	{
+		lt_dlerror();
 		handle = lt_dlopenext(path.c_str());
+		if (handle == nullptr)
+		{
+			std::ostringstream stringStream;
+			stringStream << "Loading of '" << path << "' failed: " << lt_dlerror();
+			string msg = stringStream.str();
+
+			throw runtime_error(msg.c_str());
+		}
 		init = (void (*)())(lt_dlsym(handle, "init"));
 		exit = (void (*)())(lt_dlsym(handle, "exit"));
 		LoadFunctions();

@@ -138,6 +138,7 @@ AC_C_VOLATILE
 AC_CONFIG_FILES([Makefile
                  bin/Makefile
 		 docs/Makefile
+		 tests/Makefile
 		 rsrc/Makefile])
 
 AC_OUTPUT

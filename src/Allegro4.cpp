@@ -207,7 +207,7 @@ void AllegroUI::initGfxMode(unsigned int hres, unsigned int vres)
 
 	int setmode_code = set_gfx_mode(GFX_AUTODETECT_WINDOWED, hres, vres, 0, 0);
 
-	if (verbose)
+	if (false)
 		printf("Trying to set resolution: %dx%d, %d bpp\n", hres, vres, get_color_depth());
 
 	screen_buffer = create_bitmap(hres, vres);

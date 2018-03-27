@@ -94,7 +94,7 @@ public:
 
 	void setZoom(double new_zoom, valarray<double> pivot)
 	{
-		if (verbose)
+		if (false)
 			printf("Set new zoom %.2g -> %.2g with pivot (%.2g, %.2g)\n", zoom, new_zoom, pivot[X], pivot[Y]);
 		double zoom_ratio = new_zoom / zoom;
 		zoom = new_zoom;
